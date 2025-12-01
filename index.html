@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Breath Buddy</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="breathbuddy.png">
+    <style>
+        /* --- CSS VARIABELEN VOOR KLEUREN --- */
+        :root {
+            --bg-color: #050505;
+            --text-color: #f0f0f0; 
+            --card-bg: rgba(30, 30, 30, 0.6);
+            
+            /* CONSISTENTE KLEUREN (GEBASEERD OP #0F9ED5) */
+            --accent-blue: #0F9ED5; 
+            --darker-accent: #0C7BA3; 
+
+            --accent-gradient: linear-gradient(135deg, var(--accent-blue) 0%, var(--darker-accent) 100%); 
+            --circle-gradient: linear-gradient(135deg, var(--accent-blue) 0%, #084C66 100%); 
+            --glow-color: rgba(15, 158, 213, 0.6); 
+
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            height: 100vh;
+            height: 100dvh; 
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+
+        /* --- LAYOUT --- */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            width: 100%;
+            text-align: center;
+            padding-top: 20px;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        h1 {
+            font-weight: 700; 
+            font-size: 1.8rem;
+            letter-spacing: 0;
+            margin: 0;
+            text-transform: none; 
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        #header-breath {
+            color: var(--accent-blue); 
+            text-shadow: 0 0 5px var(--glow-color); 
+        }
+        #header-buddy {
+             color: var(--text-color); 
+        }
+
+
+        /* --- DE ADEM CIRKEL --- */
+        .visual-area {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 100%;
+        }
+
+        .circle-wrapper {
+            width: 60vw;
+            height: 60vw;
+            max-width: 300px; 
+            max-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .breathing-circle {
+            width: 100%;
+            height: 100%;
+            background: var(--circle-gradient);
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 60px var(--glow-color);
+            transform: scale(1);
+            will-change: transform;
+        }
+
+        .status-text {
+            position: relative;
+            z-index: 10;
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        /* --- BEDIENINGSPANEEL (SETTINGS) --- */
+        .controls-container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px; 
+            margin-bottom: 20px;
+        }
+
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+
+        input[type="number"] {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            text-align: center;
+            width: 100%;
+            outline: none;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--accent-blue);
+        }
+
+        /* --- KNOPPEN --- */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-start {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 4px 15px var(--glow-color);
+        }
+
+        .timer-display {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 15px;
+            font-variant-numeric: tabular-nums;
+            height: 20px;
+        }
+
+        /* --- HELPER CLASSES --- */
+        body.active header { opacity: 0; }
+        .hidden { display: none !important; }
+        .fade-out { opacity: 0; pointer-events: none; position: absolute; bottom: -200px; }
+
+        #floatingStopBtn {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto;
+            min-width: 150px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px 30px;
+            border-radius: 30px;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        #floatingStopBtn.visible { opacity: 1; }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1><span id="header-breath">Breath</span> <span id="header-buddy">Buddy</span></h1>
+        </header>
+
+        <div class="visual-area">
+            <div class="circle-wrapper">
+                <div class="breathing-circle" id="circle"></div>
+                <div class="status-text" id="statusText">Start</div>
+            </div>
+        </div>
+
+        <button id="floatingStopBtn" class="btn hidden" onclick="stopExercise()">STOP</button>
+
+        <div class="controls-container" id="settingsPanel">
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label>In (sec)</label>
+                    <input type="number" id="inTime" value="4" min="2" max="10">
+                </div>
+                <div class="setting-item">
+                    <label>Vast (sec)</label>
+                    <input type="number" id="holdTime" value="0" min="0" max="10">
+                </div>
+                <div class="setting-item">
+                    <label>Uit (sec)</label>
+                    <input type="number" id="outTime" value="6" min="2" max="10">
+                </div>
+            </div>
+            
+            <div class="setting-item" style="margin-bottom: 20px;">
+                <label style="text-align: left;">Duur Sessie (minuten)</label>
+                <input type="number" id="duration" value="5" min="1" max="60" style="text-align: left;">
+            </div>
+
+            <button class="btn btn-start" onclick="startExercise()">Start Sessie</button>
+            <div class="timer-display" id="totalTimer">Klaar om te ontspannen</div>
+        </div>
+    </div>
+
+    <audio id="ios-unlock-sound" loop style="display:none;">
+        <source src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD//////////////////////////////////////////////////////////////////wAAABFMYXZjNTguMTM0LjEwMAAAAAAAAAAAIAAELRAAAAAAAAAAAAAA//OECQAAAAAAIwAAAAASAAACABAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const circle = document.getElementById('circle');
+        const statusText = document.getElementById('statusText');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const floatingStopBtn = document.getElementById('floatingStopBtn');
+        const totalTimerDisplay = document.getElementById('totalTimer');
+        const body = document.body;
+        const iosUnlockSound = document.getElementById('ios-unlock-sound');
+
+        const inInput = document.getElementById('inTime');
+        const holdInput = document.getElementById('holdTime');
+        const outInput = document.getElementById('outTime');
+        const durationInput = document.getElementById('duration');
+
+        let isRunning = false;
+        let sessionTimer = null;
+        let breathingTimeout = null;
+        let remainingSeconds = 0;
+        
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playTone(freq) {
+            // Zorg dat de audio context actief is (belangrijk voor iOS)
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            
+            const now = audioCtx.currentTime;
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.05, now + 0.5); 
+            gainNode.gain.exponentialRampToValueAtTime(0.001, now + 3);
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(now + 3.5);
+        }
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function runBreathingCycle(inDuration, holdDuration, outDuration) {
+            if (!isRunning) return;
+
+            // 1. INADEMEN
+            statusText.textContent = "Inademen";
+            playTone(300); 
+            
+            circle.style.transition = `transform ${inDuration}s cubic-bezier(0.4, 0.0, 0.2, 1)`;
+            circle.style.transform = "scale(1.6)"; 
+            
+            breathingTimeout = setTimeout(() => {
+                if (!isRunning) return;
+
+                // 2. VASTHOUDEN
+                if (holdDuration > 0) {
+                    statusText.textContent = "Vasthouden";
+                    playTone(250); 
+
+                    circle.style.transition = `transform 0s`;
+                    circle.style.transform = "scale(1.6)";
+
+                    breathingTimeout = setTimeout(() => {
+                        if (!isRunning) return;
+                        startExhale(outDuration, inDuration, holdDuration);
+                    }, holdDuration * 1000);
+
+                } else {
+                    startExhale(outDuration, inDuration, holdDuration);
+                }
+
+            }, inDuration * 1000);
+        }
+
+        function startExhale(outDuration, inDuration, holdDuration) {
+            if (!isRunning) return;
+
+            // 3. UITADEMEN
+            statusText.textContent = "Uitademen";
+            playTone(200); 
+            
+            circle.style.transition = `transform ${outDuration}s cubic-bezier(0.4, 0.0, 0.2, 1)`;
+            circle.style.transform = "scale(1)"; 
+
+            breathingTimeout = setTimeout(() => {
+                runBreathingCycle(inDuration, holdDuration, outDuration);
+            }, outDuration * 1000);
+        }
+
+        function startExercise() {
+            const inSec = parseInt(inInput.value) || 4;
+            const holdSec = parseInt(holdInput.value) || 0; 
+            const outSec = parseInt(outInput.value) || 6;
+            const mins = parseInt(durationInput.value) || 5;
+
+            if (inSec < 1 || outSec < 1 || mins < 1) {
+                alert("Waarden moeten minimaal 1 zijn.");
+                return;
+            }
+
+            // --- iOS SILENT MODE FIX ---
+            // We starten de AudioContext én spelen de stille track af.
+            // Dit vertelt iOS: "Dit is een mediaspeler, negeer de mute knop".
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            iosUnlockSound.play().catch(e => console.log("Audio play failed", e));
+            // ---------------------------
+            
+            remainingSeconds = mins * 60;
+            isRunning = true;
+            
+            body.classList.add('active');
+            settingsPanel.classList.add('fade-out'); 
+            floatingStopBtn.classList.remove('hidden');
+            setTimeout(() => floatingStopBtn.classList.add('visible'), 100); 
+            
+            totalTimerDisplay.textContent = formatTime(remainingSeconds);
+            sessionTimer = setInterval(() => {
+                remainingSeconds--;
+                totalTimerDisplay.textContent = formatTime(remainingSeconds);
+                if(remainingSeconds <= 0) stopExercise();
+            }, 1000);
+
+            runBreathingCycle(inSec, holdSec, outSec);
+        }
+
+        function stopExercise() {
+            isRunning = false;
+            clearTimeout(breathingTimeout);
+            clearInterval(sessionTimer);
+
+            // Stop de stille track zodat de batterij niet onnodig leegloopt
+            iosUnlockSound.pause();
+            iosUnlockSound.currentTime = 0;
+
+            body.classList.remove('active');
+            settingsPanel.classList.remove('fade-out');
+            floatingStopBtn.classList.remove('visible');
+            setTimeout(() => floatingStopBtn.classList.add('hidden'), 500);
+
+            statusText.textContent = "Klaar";
+            circle.style.transition = "transform 1s ease";
+            circle.style.transform = "scale(1)";
+            
+            totalTimerDisplay.textContent = "Sessie gestopt";
+        }
+    </script>
+</body>
+</html>
