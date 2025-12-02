@@ -244,12 +244,12 @@
             
             // PREPARE PHASE (5 Seconds)
             let prepCount = 5;
-            statusText.textContent = `Get Ready... ${prepCount}`;
+            statusText.textContent = `${prepCount}`;
             
             prepareInterval = setInterval(() => {
                 prepCount--;
                 if (prepCount > 0) {
-                    statusText.textContent = `Get Ready... ${prepCount}`;
+                    statusText.textContent = `${prepCount}`;
                 } else {
                     clearInterval(prepareInterval);
                     // Start actual breathing
