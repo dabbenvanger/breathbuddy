@@ -41,13 +41,12 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* Changed: justifyContent to start to push content from top */
     justify-content: flex-start; 
     height: 100%;
     padding: 20px;
     position: relative;
     z-index: 1;
-    overflow-y: auto; /* Allow scroll on small screens if needed */
+    overflow-y: auto; 
 }
 
 header {
@@ -76,13 +75,13 @@ h1 {
      color: var(--text-color); 
 }
 
-/* New rule to create space above controls */
+/* Updated Spacer: Increased flex-grow to push controls down */
 .spacer {
-    flex-grow: 0.5; /* Takes up a small amount of free space */
-    min-height: 20px; /* Ensures a minimum distance */
+    flex-grow: 1; 
+    min-height: 20px; 
 }
 
-/* --- CONTROLS CONTAINER (New Wireframe Layout) --- */
+/* --- CONTROLS CONTAINER --- */
 .controls-container {
     width: 100%;
     max-width: 400px;
@@ -97,7 +96,8 @@ h1 {
     flex-direction: column;
     gap: 20px;
     flex-shrink: 0;
-    margin-bottom: 20px; /* Space between controls and circle */
+    /* Spacing reduced to bring it closer to the circle */
+    margin-bottom: 10px; 
 }
 
 /* Presets Row */
@@ -113,7 +113,7 @@ h1 {
     border: 1px solid var(--border-color);
     color: var(--text-muted);
     padding: 12px 5px;
-    border-radius: 30px; /* Pill shape */
+    border-radius: 30px; 
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
@@ -123,7 +123,7 @@ h1 {
 .btn-preset.active {
     background: var(--accent-blue);
     border-color: var(--accent-blue);
-    color: #050505; /* Dark text on active button */
+    color: #050505; 
 }
 
 /* Grid Layout for Phases */
@@ -133,13 +133,13 @@ h1 {
     gap: 12px;
 }
 
-/* Pill Control Styling (Matches Wireframe) */
+/* Pill Control Styling */
 .control-pill {
     display: flex;
     align-items: center;
     justify-content: space-between;
     background: transparent;
-    border: 1px solid var(--text-muted); /* White/Grey border outline */
+    border: 1px solid var(--text-muted); 
     border-radius: 40px;
     padding: 6px;
     height: 60px;
@@ -147,14 +147,14 @@ h1 {
 }
 
 .control-pill.full-width {
-    grid-column: span 2; /* For Duration */
+    grid-column: span 2; 
 }
 
 .pill-btn {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 1px solid var(--border-color); /* Subtle border for button */
+    border: 1px solid var(--border-color); 
     background: transparent;
     color: var(--text-color);
     font-size: 1.4rem;
@@ -165,7 +165,7 @@ h1 {
     transition: background 0.2s;
     flex-shrink: 0;
     user-select: none;
-    padding-bottom: 3px; /* Visual center fix */
+    padding-bottom: 3px; 
 }
 
 .pill-btn:active {
@@ -196,26 +196,27 @@ h1 {
 }
 
 
-/* --- THE BREATHING CIRCLE (Positioned Below Controls) --- */
+/* --- THE BREATHING CIRCLE --- */
 .visual-area {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* Center in remaining space */
+    justify-content: center; 
     position: relative;
     width: 100%;
     transition: transform 0.5s ease-out;
     cursor: pointer;
-    min-height: 250px; /* Ensure space on small screens */
+    min-height: 200px; /* Reduced min-height */
     -webkit-tap-highlight-color: transparent;
 }
 
 .circle-wrapper {
-    width: 50vw;
-    height: 50vw;
-    max-width: 220px; 
-    max-height: 220px;
+    /* Reduced size */
+    width: 40vw; 
+    height: 40vw;
+    max-width: 180px; 
+    max-height: 180px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -255,7 +256,7 @@ h1 {
     text-transform: uppercase;
     pointer-events: none;
     text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    width: 200px; /* Prevent text wrap jitter */
+    width: 200px; 
 }
 
 /* --- STATES & ANIMATION HELPER CLASSES --- */
@@ -265,14 +266,14 @@ body.active header { opacity: 0; pointer-events: none; height: 0; padding: 0; ov
 body.active .controls-container {
     opacity: 0;
     pointer-events: none;
-    transform: translateY(-50px); /* Slide UP out of view */
+    transform: translateY(-50px); 
     height: 0;
     margin: 0;
     padding: 0;
     overflow: hidden;
 }
 body.active .spacer {
-    display: none; /* Hide the spacer when active */
+    display: none; 
 }
 
 /* When active, circle takes dominant position */

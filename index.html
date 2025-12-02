@@ -78,7 +78,7 @@
         <div class="visual-area" onclick="handleCircleClick()">
             <div class="circle-wrapper">
                 <div class="breathing-circle idle" id="circle"></div>
-                <div class="status-text" id="statusText">Tap to Start</div>
+                <div class="status-text" id="statusText">Start</div>
             </div>
         </div>
 
@@ -281,7 +281,8 @@
                 playTone(150, 'gong'); // Play completion sound
                 statusText.textContent = "Complete";
             } else {
-                statusText.textContent = "Tap to Start";
+                // Text changed to "Start"
+                statusText.textContent = "Start";
             }
 
             // Reset UI
@@ -296,7 +297,7 @@
             setTimeout(() => {
                 if(!isRunning) {
                     circle.classList.add('idle');
-                    if(completed) statusText.textContent = "Tap to Start";
+                    if(completed) statusText.textContent = "Start"; // Text changed to "Start"
                 }
             }, 2000);
         }
