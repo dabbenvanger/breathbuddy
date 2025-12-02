@@ -94,9 +94,8 @@ h1 {
     transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
     flex-shrink: 0;
-    /* Spacing reduced to bring it closer to the circle */
     margin-bottom: 10px; 
 }
 
@@ -105,25 +104,35 @@ h1 {
     display: flex;
     justify-content: space-between;
     gap: 8px;
+    padding-bottom: 16px;
+    margin-bottom: 10x;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .btn-preset {
     flex: 1;
-    background: var(--btn-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.4);
     padding: 12px 5px;
     border-radius: 30px; 
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.btn-preset:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .btn-preset.active {
     background: var(--accent-blue);
     border-color: var(--accent-blue);
-    color: #050505; 
+    color: #fff; 
+    box-shadow: 0 0 20px rgba(15, 158, 213, 0.3);
 }
 
 /* Grid Layout for Phases */
@@ -139,7 +148,7 @@ h1 {
     align-items: center;
     justify-content: space-between;
     background: transparent;
-    border: 1px solid var(--text-muted); 
+    border: 1px solid var(--border-color); 
     border-radius: 40px;
     padding: 6px;
     height: 60px;
@@ -154,22 +163,31 @@ h1 {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 1px solid var(--border-color); 
-    background: transparent;
-    color: var(--text-color);
+    border: 1.5px solid rgba(255, 255, 255, 0.15); 
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.7);
     font-size: 1.4rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
     flex-shrink: 0;
     user-select: none;
     padding-bottom: 3px; 
 }
 
+.pill-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.95);
+}
+
 .pill-btn:active {
-    background: rgba(255,255,255,0.1);
+    background: rgba(15, 158, 213, 0.2);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    transform: scale(0.95);
 }
 
 .pill-content {
@@ -182,17 +200,19 @@ h1 {
 
 .pill-label {
     font-size: 0.7rem;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 2px;
+    letter-spacing: 0.8px;
+    margin-bottom: 3px;
+    font-weight: 600;
 }
 
 .pill-value {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: white;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #ffffff;
     font-variant-numeric: tabular-nums;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
 
