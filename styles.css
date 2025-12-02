@@ -76,6 +76,12 @@ h1 {
      color: var(--text-color); 
 }
 
+/* New rule to create space above controls */
+.spacer {
+    flex-grow: 0.5; /* Takes up a small amount of free space */
+    min-height: 20px; /* Ensures a minimum distance */
+}
+
 /* --- CONTROLS CONTAINER (New Wireframe Layout) --- */
 .controls-container {
     width: 100%;
@@ -264,6 +270,9 @@ body.active .controls-container {
     margin: 0;
     padding: 0;
     overflow: hidden;
+}
+body.active .spacer {
+    display: none; /* Hide the spacer when active */
 }
 
 /* When active, circle takes dominant position */
