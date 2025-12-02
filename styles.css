@@ -1,0 +1,304 @@
+/* --- CSS VARIABLES --- */
+:root {
+    --bg-color: #050505;
+    --text-color: #f0f0f0; 
+    --text-muted: #888;
+    --card-bg: rgba(30, 30, 30, 0.6);
+    
+    /* COLORS (Based on #0F9ED5) */
+    --accent-blue: #0F9ED5; 
+    --darker-accent: #0C7BA3; 
+    --btn-bg: rgba(255, 255, 255, 0.05);
+    --border-color: rgba(255, 255, 255, 0.1);
+
+    --accent-gradient: linear-gradient(135deg, var(--accent-blue) 0%, var(--darker-accent) 100%); 
+    --circle-gradient: linear-gradient(135deg, var(--accent-blue) 0%, #084C66 100%); 
+    --glow-color: rgba(15, 158, 213, 0.6); 
+
+    --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-main);
+    height: 100vh;
+    height: 100dvh; 
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; 
+}
+
+/* --- LAYOUT --- */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Changed: justifyContent to start to push content from top */
+    justify-content: flex-start; 
+    height: 100%;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+    overflow-y: auto; /* Allow scroll on small screens if needed */
+}
+
+header {
+    width: 100%;
+    text-align: center;
+    padding-bottom: 20px;
+    flex-shrink: 0;
+    transition: opacity 0.5s ease;
+}
+
+h1 {
+    font-weight: 700; 
+    font-size: 1.6rem;
+    letter-spacing: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+#header-breath {
+    color: var(--accent-blue); 
+    text-shadow: 0 0 5px var(--glow-color); 
+}
+#header-buddy {
+     color: var(--text-color); 
+}
+
+/* --- CONTROLS CONTAINER (New Wireframe Layout) --- */
+.controls-container {
+    width: 100%;
+    max-width: 400px;
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 24px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex-shrink: 0;
+    margin-bottom: 20px; /* Space between controls and circle */
+}
+
+/* Presets Row */
+.presets-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.btn-preset {
+    flex: 1;
+    background: var(--btn-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 12px 5px;
+    border-radius: 30px; /* Pill shape */
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-preset.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: #050505; /* Dark text on active button */
+}
+
+/* Grid Layout for Phases */
+.phases-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* Pill Control Styling (Matches Wireframe) */
+.control-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    border: 1px solid var(--text-muted); /* White/Grey border outline */
+    border-radius: 40px;
+    padding: 6px;
+    height: 60px;
+    position: relative;
+}
+
+.control-pill.full-width {
+    grid-column: span 2; /* For Duration */
+}
+
+.pill-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color); /* Subtle border for button */
+    background: transparent;
+    color: var(--text-color);
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    user-select: none;
+    padding-bottom: 3px; /* Visual center fix */
+}
+
+.pill-btn:active {
+    background: rgba(255,255,255,0.1);
+}
+
+.pill-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+.pill-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.pill-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: white;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* --- THE BREATHING CIRCLE (Positioned Below Controls) --- */
+.visual-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Center in remaining space */
+    position: relative;
+    width: 100%;
+    transition: transform 0.5s ease-out;
+    cursor: pointer;
+    min-height: 250px; /* Ensure space on small screens */
+    -webkit-tap-highlight-color: transparent;
+}
+
+.circle-wrapper {
+    width: 50vw;
+    height: 50vw;
+    max-width: 220px; 
+    max-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.breathing-circle {
+    width: 100%;
+    height: 100%;
+    background: var(--circle-gradient);
+    border-radius: 50%;
+    position: absolute;
+    box-shadow: 0 0 20px var(--glow-color);
+    transform: scale(1);
+    will-change: transform;
+    transition: box-shadow 0.3s;
+}
+
+/* Idle Animation */
+.breathing-circle.idle {
+    animation: idlePulse 3s infinite ease-in-out;
+}
+
+@keyframes idlePulse {
+    0% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 35px var(--glow-color); }
+    100% { transform: scale(1); opacity: 0.9; }
+}
+
+.status-text {
+    position: relative;
+    z-index: 10;
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-align: center;
+    text-transform: uppercase;
+    pointer-events: none;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    width: 200px; /* Prevent text wrap jitter */
+}
+
+/* --- STATES & ANIMATION HELPER CLASSES --- */
+
+/* Active State: Hide Header and Controls */
+body.active header { opacity: 0; pointer-events: none; height: 0; padding: 0; overflow: hidden; }
+body.active .controls-container {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50px); /* Slide UP out of view */
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* When active, circle takes dominant position */
+body.active .visual-area {
+    transform: translateY(0); 
+    height: 100%;
+}
+
+/* Stop Button (Floating) */
+#floatingStopBtn {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    width: auto;
+    min-width: 140px;
+    background: rgba(255, 59, 48, 0.2); 
+    backdrop-filter: blur(10px);
+    color: #ff453a;
+    border: 1px solid rgba(255, 59, 48, 0.5);
+    padding: 14px 40px;
+    border-radius: 40px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.5s;
+    cursor: pointer;
+}
+
+#floatingStopBtn.visible { 
+    opacity: 1; 
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
