@@ -140,8 +140,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: 24px;
-    /* Standaard 20px padding voor brede schermen */
-    padding: 20px; 
+    padding: 20px;
     border: 1px solid var(--border-color);
     transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s;
     display: flex;
@@ -151,14 +150,6 @@ input:checked + .slider:before { transform: translateX(20px); }
     margin-bottom: 10px; 
     min-height: 380px; 
 }
-
-/* Nieuwe regel: Minder padding voor zeer smalle schermen (tot 380px) */
-@media (max-width: 380px) {
-    .controls-container {
-        padding: 10px; /* Voldoende ruimte gewonnen voor 2 kolommen */
-    }
-}
-
 
 .presets-row {
     display: flex;
@@ -205,28 +196,22 @@ input:checked + .slider:before { transform: translateX(20px); }
 /* --- PHASES GRID FIX: MOBILE FIRST (Default Single Column) --- */
 .phases-grid {
     display: grid;
-    grid-template-columns: 1fr; /* Default: Single Column */
+    grid-template-columns: 1fr; /* Default: Single Column (Solves Overflow on <400px) */
     gap: 12px;
 }
 
-/* Nieuwe media query: Overschakeling naar 2 kolommen vanaf 380px */
-@media (min-width: 380px) {
+/* Only apply two columns and spanning to wider screens */
+@media (min-width: 400px) {
     .phases-grid {
         grid-template-columns: 1fr 1fr; 
     }
     
-    /* Zorg dat de full-width elementen 2 kolommen beslaan */
     .control-pill.full-width { grid-column: span 2; }
     .box-mode-active #ctrl-in { grid-column: span 2; }
     .breath-478-active #ctrl-hold { grid-column: span 2; }
-    
-    /* Herstel de 20px padding voor een betere uitstraling op 380px+ */
-    .controls-container {
-        padding: 20px;
-    }
 }
 
-/* --- PILL STYLING (Geen wijzigingen) --- */
+/* --- PILL STYLING (No Changes) --- */
 .control-pill {
     display: flex;
     align-items: center;
@@ -238,7 +223,19 @@ input:checked + .slider:before { transform: translateX(20px); }
     height: 60px;
 }
 
+.control-pill.full-width { 
+    /* grid-column: span 1; is the default here when <400px */
+}
+
 .hidden-control { display: none !important; }
+
+/* Dynamic Full Width Classes via JS (Only active when in media query scope) */
+.box-mode-active #ctrl-in { 
+    /* Styles moved to media query */
+}
+.breath-478-active #ctrl-hold { 
+    /* Styles moved to media query */
+}
 
 .pill-btn {
     width: 44px;
@@ -304,7 +301,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 .pill-value.pop { animation: scaleUp 0.3s ease-out; }
 
-/* --- VISUALS & STATES (Geen wijzigingen) --- */
+/* --- VISUALS & STATES (No Changes) --- */
 .visual-area {
     flex-grow: 1;
     display: flex;
