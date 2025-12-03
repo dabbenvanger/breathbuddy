@@ -122,7 +122,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     align-items: center;
     justify-content: flex-start; 
     height: 100%;
-    padding: 20px;
+    padding: 20px 15px;
     position: relative;
     z-index: 1;
     overflow-y: auto; 
@@ -140,7 +140,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: 24px;
-    padding: 20px;
+    padding: 15px;
     border: 1px solid var(--border-color);
     transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s;
     display: flex;
@@ -148,7 +148,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     gap: 16px;
     flex-shrink: 0;
     margin-bottom: 10px; 
-    min-height: 380px; 
+    min-height: 380px; /* Prevent layout jump */
 }
 
 .presets-row {
@@ -193,25 +193,13 @@ input:checked + .slider:before { transform: translateX(20px); }
     padding: 0 10px;
 }
 
-/* --- PHASES GRID FIX: MOBILE FIRST (Default Single Column) --- */
 .phases-grid {
     display: grid;
-    grid-template-columns: 1fr; /* Default: Single Column (Solves Overflow on <400px) */
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
 
-/* Only apply two columns and spanning to wider screens */
-@media (min-width: 400px) {
-    .phases-grid {
-        grid-template-columns: 1fr 1fr; 
-    }
-    
-    .control-pill.full-width { grid-column: span 2; }
-    .box-mode-active #ctrl-in { grid-column: span 2; }
-    .breath-478-active #ctrl-hold { grid-column: span 2; }
-}
-
-/* --- PILL STYLING (No Changes) --- */
+/* --- PILL STYLING --- */
 .control-pill {
     display: flex;
     align-items: center;
@@ -223,24 +211,17 @@ input:checked + .slider:before { transform: translateX(20px); }
     height: 60px;
 }
 
-.control-pill.full-width { 
-    /* grid-column: span 1; is the default here when <400px */
-}
-
+.control-pill.full-width { grid-column: span 2; }
 .hidden-control { display: none !important; }
 
-/* Dynamic Full Width Classes via JS (Only active when in media query scope) */
-.box-mode-active #ctrl-in { 
-    /* Styles moved to media query */
-}
-.breath-478-active #ctrl-hold { 
-    /* Styles moved to media query */
-}
+/* Dynamic Full Width Classes via JS */
+.box-mode-active #ctrl-in { grid-column: span 2; }
+.breath-478-active #ctrl-hold { grid-column: span 2; }
 
 .pill-btn {
     width: 44px;
     height: 44px;
-    min-width: 44px; 
+    min-width: 44px; /* Fix for screenshot squash issue */
     border-radius: 50%;
     border: 1.5px solid rgba(255, 255, 255, 0.15); 
     background: rgba(255, 255, 255, 0.03);
@@ -251,7 +232,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
-    flex-shrink: 0; 
+    flex-shrink: 0; /* Prevent shrinking */
     padding-bottom: 3px; 
 }
 
@@ -267,9 +248,9 @@ input:checked + .slider:before { transform: translateX(20px); }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-grow: 1; 
+    flex-grow: 1; /* Allow text to take remaining space */
     padding: 0 5px;
-    overflow: hidden; 
+    overflow: hidden; /* Prevent spill */
 }
 
 .pill-label {
@@ -301,7 +282,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 .pill-value.pop { animation: scaleUp 0.3s ease-out; }
 
-/* --- VISUALS & STATES (No Changes) --- */
+/* --- VISUALS --- */
 .visual-area {
     flex-grow: 1;
     display: flex;
@@ -357,6 +338,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     text-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
+/* --- STATES --- */
 body.active header { opacity: 0; pointer-events: none; height: 0; padding: 0; overflow: hidden; }
 body.active .controls-container {
     opacity: 0;
