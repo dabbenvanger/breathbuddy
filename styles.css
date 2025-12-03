@@ -140,7 +140,8 @@ input:checked + .slider:before { transform: translateX(20px); }
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-radius: 24px;
-    padding: 20px;
+    /* Standaard 20px padding voor brede schermen */
+    padding: 20px; 
     border: 1px solid var(--border-color);
     transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s;
     display: flex;
@@ -148,8 +149,16 @@ input:checked + .slider:before { transform: translateX(20px); }
     gap: 16px;
     flex-shrink: 0;
     margin-bottom: 10px; 
-    min-height: 380px; /* Prevent layout jump */
+    min-height: 380px; 
 }
+
+/* Nieuwe regel: Minder padding voor zeer smalle schermen (tot 380px) */
+@media (max-width: 380px) {
+    .controls-container {
+        padding: 10px; /* Voldoende ruimte gewonnen voor 2 kolommen */
+    }
+}
+
 
 .presets-row {
     display: flex;
@@ -193,13 +202,31 @@ input:checked + .slider:before { transform: translateX(20px); }
     padding: 0 10px;
 }
 
+/* --- PHASES GRID FIX: MOBILE FIRST (Default Single Column) --- */
 .phases-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr; /* Default: Single Column */
     gap: 12px;
 }
 
-/* --- PILL STYLING --- */
+/* Nieuwe media query: Overschakeling naar 2 kolommen vanaf 380px */
+@media (min-width: 380px) {
+    .phases-grid {
+        grid-template-columns: 1fr 1fr; 
+    }
+    
+    /* Zorg dat de full-width elementen 2 kolommen beslaan */
+    .control-pill.full-width { grid-column: span 2; }
+    .box-mode-active #ctrl-in { grid-column: span 2; }
+    .breath-478-active #ctrl-hold { grid-column: span 2; }
+    
+    /* Herstel de 20px padding voor een betere uitstraling op 380px+ */
+    .controls-container {
+        padding: 20px;
+    }
+}
+
+/* --- PILL STYLING (Geen wijzigingen) --- */
 .control-pill {
     display: flex;
     align-items: center;
@@ -211,17 +238,12 @@ input:checked + .slider:before { transform: translateX(20px); }
     height: 60px;
 }
 
-.control-pill.full-width { grid-column: span 2; }
 .hidden-control { display: none !important; }
-
-/* Dynamic Full Width Classes via JS */
-.box-mode-active #ctrl-in { grid-column: span 2; }
-.breath-478-active #ctrl-hold { grid-column: span 2; }
 
 .pill-btn {
     width: 44px;
     height: 44px;
-    min-width: 44px; /* Fix for screenshot squash issue */
+    min-width: 44px; 
     border-radius: 50%;
     border: 1.5px solid rgba(255, 255, 255, 0.15); 
     background: rgba(255, 255, 255, 0.03);
@@ -232,7 +254,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0; 
     padding-bottom: 3px; 
 }
 
@@ -248,9 +270,9 @@ input:checked + .slider:before { transform: translateX(20px); }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-grow: 1; /* Allow text to take remaining space */
+    flex-grow: 1; 
     padding: 0 5px;
-    overflow: hidden; /* Prevent spill */
+    overflow: hidden; 
 }
 
 .pill-label {
@@ -282,7 +304,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 .pill-value.pop { animation: scaleUp 0.3s ease-out; }
 
-/* --- VISUALS --- */
+/* --- VISUALS & STATES (Geen wijzigingen) --- */
 .visual-area {
     flex-grow: 1;
     display: flex;
@@ -338,7 +360,6 @@ input:checked + .slider:before { transform: translateX(20px); }
     text-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
-/* --- STATES --- */
 body.active header { opacity: 0; pointer-events: none; height: 0; padding: 0; overflow: hidden; }
 body.active .controls-container {
     opacity: 0;
