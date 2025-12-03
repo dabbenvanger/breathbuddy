@@ -4,30 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Breath Buddy</title>
-
-    <!-- CSS -->
-    
     <link rel="stylesheet" href="styles.css">
-
-    <!-- Open Graph -->
+    
     <meta property="og:type" content="website">
     <meta property="og:title" content="Breath Buddy">
     <meta property="og:description" content="Helping you to find your breath">
-    <meta property="og:image" content="breathbuddy-og.png">
-
-    <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
-
-    <!-- Apple / iOS icon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-
-    <!-- Android / Chrome icons -->
-    <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
 </head>
 
 <body>
@@ -35,6 +17,11 @@
     <div class="app-container">
         <header>
             <h1><span id="header-breath">Breath</span> <span id="header-buddy">Buddy</span></h1>
+            
+            <label class="theme-switch" aria-label="Toggle color theme">
+                <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+                <span class="slider round"></span>
+            </label>
         </header>
 
         <div class="spacer"></div>
@@ -42,56 +29,59 @@
         <div class="controls-container" id="settingsPanel">
             
             <div class="presets-row">
-                <button class="btn-preset active" id="preset-box" onclick="applyPreset('box')">Box</button>
-                <button class="btn-preset" id="preset-478" onclick="applyPreset('478')">4-7-8</button>
-                <button class="btn-preset" id="preset-coherent" onclick="applyPreset('coherent')">Coherent</button>
+                <button class="btn-preset active" id="preset-box" onclick="applyPreset('box')" aria-label="Select Box Breathing preset">Box</button>
+                <button class="btn-preset" id="preset-478" onclick="applyPreset('478')" aria-label="Select 4-7-8 Breathing preset">4-7-8</button>
+                <button class="btn-preset" id="preset-personal" onclick="applyPreset('personal')" aria-label="Select Personal Breathing preset">Personal</button>
             </div>
+
+            <div id="preset-description" class="preset-description">
+                </div>
 
             <div class="phases-grid">
                 
-                <div class="control-pill">
-                    <button class="pill-btn" onclick="adjustSetting('in', -1)">−</button>
+                <div class="control-pill" id="ctrl-in">
+                    <button class="pill-btn" onclick="adjustSetting('in', -1)" aria-label="Decrease time">−</button>
                     <div class="pill-content">
-                        <span class="pill-label">Inhale</span>
+                        <span class="pill-label" id="label-in">Inhale</span>
                         <span class="pill-value" id="display-in">4s</span>
                     </div>
-                    <button class="pill-btn" onclick="adjustSetting('in', 1)">+</button>
+                    <button class="pill-btn" onclick="adjustSetting('in', 1)" aria-label="Increase time">+</button>
                 </div>
 
-                <div class="control-pill">
-                    <button class="pill-btn" onclick="adjustSetting('out', -1)">−</button>
+                <div class="control-pill" id="ctrl-out">
+                    <button class="pill-btn" onclick="adjustSetting('out', -1)" aria-label="Decrease time">−</button>
                     <div class="pill-content">
                         <span class="pill-label">Exhale</span>
                         <span class="pill-value" id="display-out">4s</span>
                     </div>
-                    <button class="pill-btn" onclick="adjustSetting('out', 1)">+</button>
+                    <button class="pill-btn" onclick="adjustSetting('out', 1)" aria-label="Increase time">+</button>
                 </div>
 
-                <div class="control-pill">
-                    <button class="pill-btn" onclick="adjustSetting('hold', -1)">−</button>
+                <div class="control-pill" id="ctrl-hold">
+                    <button class="pill-btn" onclick="adjustSetting('hold', -1)" aria-label="Decrease time">−</button>
                     <div class="pill-content">
                         <span class="pill-label">Hold</span>
                         <span class="pill-value" id="display-hold">4s</span>
                     </div>
-                    <button class="pill-btn" onclick="adjustSetting('hold', 1)">+</button>
+                    <button class="pill-btn" onclick="adjustSetting('hold', 1)" aria-label="Increase time">+</button>
                 </div>
 
-                <div class="control-pill">
-                    <button class="pill-btn" onclick="adjustSetting('hold2', -1)">−</button>
+                <div class="control-pill" id="ctrl-hold2">
+                    <button class="pill-btn" onclick="adjustSetting('hold2', -1)" aria-label="Decrease time">−</button>
                     <div class="pill-content">
                         <span class="pill-label">Hold</span>
                         <span class="pill-value" id="display-hold2">4s</span>
                     </div>
-                    <button class="pill-btn" onclick="adjustSetting('hold2', 1)">+</button>
+                    <button class="pill-btn" onclick="adjustSetting('hold2', 1)" aria-label="Increase time">+</button>
                 </div>
 
                 <div class="control-pill full-width">
-                    <button class="pill-btn" onclick="adjustSetting('duration', -1)">−</button>
+                    <button class="pill-btn" onclick="adjustSetting('duration', -1)" aria-label="Decrease duration">−</button>
                     <div class="pill-content">
                         <span class="pill-label">Duration</span>
                         <span class="pill-value" id="display-duration">5 minutes</span>
                     </div>
-                    <button class="pill-btn" onclick="adjustSetting('duration', 1)">+</button>
+                    <button class="pill-btn" onclick="adjustSetting('duration', 1)" aria-label="Increase duration">+</button>
                 </div>
 
             </div>
@@ -104,294 +94,13 @@
             </div>
         </div>
 
-        <button id="floatingStopBtn" onclick="stopExercise()">Stop Session</button>
+        <button id="floatingStopBtn" onclick="stopExercise()" aria-label="Stop current session">Stop Session</button>
     </div>
 
     <audio id="ios-unlock-sound" loop style="display:none;">
         <source src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD//////////////////////////////////////////////////////////////////wAAABFMYXZjNTguMTM0LjEwMAAAAAAAAAAAIAAELRAAAAAAAAAAAAAA//OECQAAAAAAIwAAAAASAAACABAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" type="audio/mpeg">
     </audio>
 
-    <audio id="completion-sound" style="display:none;"></audio>
-
-    <script>
-        // --- CONFIG & STATE ---
-        const presets = {
-            'box':      { in: 4, hold: 4, out: 4, hold2: 4 },
-            '478':      { in: 4, hold: 7, out: 8, hold2: 0 },
-            'coherent': { in: 5, hold: 0, out: 5, hold2: 0 }
-        };
-
-        // Initial Settings (Box Default)
-        let currentSettings = { ...presets['box'], duration: 5 };
-        let activePreset = 'box';
-
-        let isRunning = false;
-        let sessionTimer = null;
-        let breathingTimeout = null;
-        let prepareInterval = null;
-        let remainingSeconds = 0;
-        
-        // --- DOM ELEMENTS ---
-        const circle = document.getElementById('circle');
-        const statusText = document.getElementById('statusText');
-        const floatingStopBtn = document.getElementById('floatingStopBtn');
-        const body = document.body;
-        const iosUnlockSound = document.getElementById('ios-unlock-sound');
-
-        // Preset Buttons
-        const btnBox = document.getElementById('preset-box');
-        const btn478 = document.getElementById('preset-478');
-        const btnCoherent = document.getElementById('preset-coherent');
-
-        // --- AUDIO ENGINE ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        function playTone(freq, type = 'breath') {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            const osc = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            osc.type = 'sine';
-            osc.frequency.value = freq;
-            
-            const now = audioCtx.currentTime;
-            
-            if (type === 'gong') {
-                // Deeper, longer sound for completion
-                osc.frequency.setValueAtTime(150, now);
-                osc.frequency.exponentialRampToValueAtTime(0.01, now + 3);
-                
-                gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(0.3, now + 0.1);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 4);
-                
-                osc.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(now + 4);
-            } else {
-                // Standard breathing beep
-                gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(0.05, now + 0.5); 
-                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 3);
-
-                osc.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(now + 3.5);
-            }
-        }
-
-        // --- UI LOGIC ---
-
-        function updateUI() {
-            // Update Text Displays
-            document.getElementById('display-in').textContent = `${currentSettings.in}s`;
-            document.getElementById('display-out').textContent = `${currentSettings.out}s`;
-            document.getElementById('display-hold').textContent = `${currentSettings.hold}s`;
-            document.getElementById('display-hold2').textContent = `${currentSettings.hold2}s`;
-            document.getElementById('display-duration').textContent = `${currentSettings.duration} minutes`;
-
-            // Update Preset Buttons styling
-            btnBox.classList.remove('active');
-            btn478.classList.remove('active');
-            btnCoherent.classList.remove('active');
-
-            if(activePreset === 'box') btnBox.classList.add('active');
-            else if(activePreset === '478') btn478.classList.add('active');
-            else btnCoherent.classList.add('active');
-        }
-
-        function applyPreset(name) {
-            if (isRunning) return;
-            activePreset = name;
-            // Overwrite phases with preset values, keep duration
-            currentSettings.in = presets[name].in;
-            currentSettings.hold = presets[name].hold;
-            currentSettings.out = presets[name].out;
-            currentSettings.hold2 = presets[name].hold2;
-            updateUI();
-        }
-
-        function adjustSetting(type, amount) {
-            if (isRunning) return;
-
-            // Manual adjustment creates a "Custom" feel, but we keep the current preset button active
-            // or we could dim them. For now, we just modify values.
-            
-            currentSettings[type] += amount;
-
-            // Limits
-            if (type === 'duration') {
-                if (currentSettings[type] < 1) currentSettings[type] = 1;
-                if (currentSettings[type] > 60) currentSettings[type] = 60;
-            } else {
-                if (currentSettings[type] < 0) currentSettings[type] = 0; 
-                // In/Out must be at least 1, Holds can be 0
-                if ((type === 'in' || type === 'out') && currentSettings[type] < 1) currentSettings[type] = 1; 
-                if (currentSettings[type] > 30) currentSettings[type] = 30; 
-            }
-
-            updateUI();
-        }
-
-        function formatTime(sec) {
-            const m = Math.floor(sec / 60);
-            const s = sec % 60;
-            return `${m}:${s.toString().padStart(2, '0')}`;
-        }
-
-        // --- START/STOP LOGIC ---
-
-        function handleCircleClick() {
-            if (isRunning) return; 
-            startExercise();
-        }
-
-        function startExercise() {
-            // Audio Context & iOS Hack
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            iosUnlockSound.play().catch(e => console.log("Audio play failed", e));
-            
-            remainingSeconds = currentSettings.duration * 60;
-            isRunning = true;
-            
-            // UI Updates
-            body.classList.add('active');
-            circle.classList.remove('idle');
-            floatingStopBtn.classList.add('visible');
-            
-            // PREPARE PHASE (5 Seconds)
-            let prepCount = 5;
-            statusText.textContent = `${prepCount}`;
-            
-            prepareInterval = setInterval(() => {
-                prepCount--;
-                if (prepCount > 0) {
-                    statusText.textContent = `${prepCount}`;
-                } else {
-                    clearInterval(prepareInterval);
-                    // Start actual breathing
-                    sessionTimer = setInterval(() => {
-                        remainingSeconds--;
-                        if(remainingSeconds <= 0) completeExercise();
-                    }, 1000);
-                    
-                    runBreathingCycle(currentSettings.in, currentSettings.hold, currentSettings.out, currentSettings.hold2);
-                }
-            }, 1000);
-        }
-
-        function completeExercise() {
-            stopExercise(true); // Pass true to indicate natural completion
-        }
-
-        function stopExercise(completed = false) {
-            isRunning = false;
-            clearTimeout(breathingTimeout);
-            clearInterval(sessionTimer);
-            clearInterval(prepareInterval);
-
-            // Stop silent track
-            iosUnlockSound.pause();
-            iosUnlockSound.currentTime = 0;
-
-            if (completed) {
-                playTone(150, 'gong'); // Play completion sound
-                statusText.textContent = "Complete";
-            } else {
-                // Text changed to "Start"
-                statusText.textContent = "Start";
-            }
-
-            // Reset UI
-            body.classList.remove('active');
-            floatingStopBtn.classList.remove('visible');
-            
-            // Reset Circle
-            circle.style.transition = "transform 1s ease";
-            circle.style.transform = "scale(1)";
-            
-            // Re-enable idle animation after a moment
-            setTimeout(() => {
-                if(!isRunning) {
-                    circle.classList.add('idle');
-                    if(completed) statusText.textContent = "Start"; // Text changed to "Start"
-                }
-            }, 2000);
-        }
-
-        // --- BREATHING ENGINE (4 PHASES) ---
-
-        function runBreathingCycle(inTime, holdTime, outTime, hold2Time) {
-            if (!isRunning) return;
-
-            // 1. INHALE
-            statusText.textContent = "Inhale";
-            playTone(300); 
-            
-            circle.style.transition = `transform ${inTime}s cubic-bezier(0.4, 0.0, 0.2, 1)`;
-            circle.style.transform = "scale(1.6)"; 
-            
-            breathingTimeout = setTimeout(() => {
-                if (!isRunning) return;
-
-                // 2. HOLD (After In)
-                if (holdTime > 0) {
-                    statusText.textContent = "Hold";
-                    playTone(250); 
-                    circle.style.transition = `transform 0s`; // Keep size
-                    circle.style.transform = "scale(1.6)";
-
-                    breathingTimeout = setTimeout(() => {
-                        if (!isRunning) return;
-                        startExhale(inTime, holdTime, outTime, hold2Time);
-                    }, holdTime * 1000);
-
-                } else {
-                    startExhale(inTime, holdTime, outTime, hold2Time);
-                }
-            }, inTime * 1000);
-        }
-
-        function startExhale(inTime, holdTime, outTime, hold2Time) {
-            if (!isRunning) return;
-
-            // 3. EXHALE
-            statusText.textContent = "Exhale";
-            playTone(200); 
-            
-            circle.style.transition = `transform ${outTime}s cubic-bezier(0.4, 0.0, 0.2, 1)`;
-            circle.style.transform = "scale(1)"; 
-
-            breathingTimeout = setTimeout(() => {
-                if (!isRunning) return;
-
-                // 4. HOLD (After Out) - New Phase
-                if (hold2Time > 0) {
-                    statusText.textContent = "Hold";
-                    playTone(250); 
-                    circle.style.transition = `transform 0s`; // Keep size (small)
-                    circle.style.transform = "scale(1)";
-
-                    breathingTimeout = setTimeout(() => {
-                        if (!isRunning) return;
-                        runBreathingCycle(inTime, holdTime, outTime, hold2Time);
-                    }, hold2Time * 1000);
-                } else {
-                    runBreathingCycle(inTime, holdTime, outTime, hold2Time);
-                }
-
-            }, outTime * 1000);
-        }
-
-        // Initialize UI on load
-        updateUI();
-
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
-

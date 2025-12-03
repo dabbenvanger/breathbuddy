@@ -5,17 +5,23 @@
     --text-muted: #888;
     --card-bg: rgba(30, 30, 30, 0.6);
     
-    /* COLORS (Based on #0F9ED5) */
-    --accent-blue: #0F9ED5; 
+    /* DEFAULT THEME */
+    --accent-color: #0F9ED5; 
     --darker-accent: #0C7BA3; 
+    --glow-color: rgba(15, 158, 213, 0.6); 
+    --circle-gradient: linear-gradient(135deg, var(--accent-color) 0%, #084C66 100%); 
+
     --btn-bg: rgba(255, 255, 255, 0.05);
     --border-color: rgba(255, 255, 255, 0.1);
-
-    --accent-gradient: linear-gradient(135deg, var(--accent-blue) 0%, var(--darker-accent) 100%); 
-    --circle-gradient: linear-gradient(135deg, var(--accent-blue) 0%, #084C66 100%); 
-    --glow-color: rgba(15, 158, 213, 0.6); 
-
     --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* SUNSET THEME */
+body.sunset-theme {
+    --accent-color: #FF8C42; 
+    --darker-accent: #FF5E5E; 
+    --glow-color: rgba(255, 140, 66, 0.6);
+    --circle-gradient: linear-gradient(135deg, var(--accent-color) 0%, var(--darker-accent) 100%); 
 }
 
 * {
@@ -34,7 +40,80 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden; 
+    transition: background-color 0.5s ease;
 }
+
+/* --- HEADER --- */
+header {
+    width: 100%;
+    text-align: center;
+    padding-bottom: 20px;
+    flex-shrink: 0;
+    transition: opacity 0.5s ease;
+    position: relative; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+h1 {
+    font-weight: 700; 
+    font-size: 2rem;
+    letter-spacing: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    flex-grow: 1;
+}
+
+.theme-switch {
+    position: absolute;
+    right: 0;
+    top: 5px;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.theme-switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255,255,255,0.2);
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider { background-color: var(--accent-color); }
+input:checked + .slider:before { transform: translateX(20px); }
+
+#header-breath {
+    color: var(--accent-color); 
+    text-shadow: 0 0 5px var(--glow-color); 
+}
+#header-buddy { color: var(--text-color); }
 
 /* --- LAYOUT --- */
 .app-container {
@@ -47,41 +126,13 @@ body {
     position: relative;
     z-index: 1;
     overflow-y: auto; 
+    max-width: 600px; 
+    margin: 0 auto;
 }
 
-header {
-    width: 100%;
-    text-align: center;
-    padding-bottom: 20px;
-    flex-shrink: 0;
-    transition: opacity 0.5s ease;
-}
+.spacer { flex-grow: 1; min-height: 20px; }
 
-h1 {
-    font-weight: 700; 
-    font-size: 2rem;
-    letter-spacing: 0;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-}
-
-#header-breath {
-    color: var(--accent-blue); 
-    text-shadow: 0 0 5px var(--glow-color); 
-}
-#header-buddy {
-     color: var(--text-color); 
-}
-
-/* Updated Spacer: Increased flex-grow to push controls down */
-.spacer {
-    flex-grow: 1; 
-    min-height: 20px; 
-}
-
-/* --- CONTROLS CONTAINER --- */
+/* --- CONTROLS --- */
 .controls-container {
     width: 100%;
     max-width: 400px;
@@ -97,15 +148,14 @@ h1 {
     gap: 16px;
     flex-shrink: 0;
     margin-bottom: 10px; 
+    min-height: 380px; /* Prevent layout jump */
 }
 
-/* Presets Row */
 .presets-row {
     display: flex;
     justify-content: space-between;
     gap: 8px;
-    padding-bottom: 16px;
-    margin-bottom: 10x;
+    padding-bottom: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -124,25 +174,32 @@ h1 {
 
 .btn-preset:hover {
     background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.12);
     color: rgba(255, 255, 255, 0.6);
 }
 
 .btn-preset.active {
-    background: var(--accent-blue);
-    border-color: var(--accent-blue);
+    background: var(--accent-color);
+    border-color: var(--accent-color);
     color: #fff; 
-    box-shadow: 0 0 20px rgba(15, 158, 213, 0.3);
+    box-shadow: 0 0 20px var(--glow-color);
 }
 
-/* Grid Layout for Phases */
+.preset-description {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.4;
+    min-height: 2.8em;
+    padding: 0 10px;
+}
+
 .phases-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
 
-/* Pill Control Styling */
+/* --- PILL STYLING --- */
 .control-pill {
     display: flex;
     align-items: center;
@@ -152,16 +209,19 @@ h1 {
     border-radius: 40px;
     padding: 6px;
     height: 60px;
-    position: relative;
 }
 
-.control-pill.full-width {
-    grid-column: span 2; 
-}
+.control-pill.full-width { grid-column: span 2; }
+.hidden-control { display: none !important; }
+
+/* Dynamic Full Width Classes via JS */
+.box-mode-active #ctrl-in { grid-column: span 2; }
+.breath-478-active #ctrl-hold { grid-column: span 2; }
 
 .pill-btn {
     width: 44px;
     height: 44px;
+    min-width: 44px; /* Fix for screenshot squash issue */
     border-radius: 50%;
     border: 1.5px solid rgba(255, 255, 255, 0.15); 
     background: rgba(255, 255, 255, 0.03);
@@ -171,22 +231,15 @@ h1 {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-    flex-shrink: 0;
-    user-select: none;
+    transition: all 0.2s;
+    flex-shrink: 0; /* Prevent shrinking */
     padding-bottom: 3px; 
 }
 
-.pill-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.25);
-    color: rgba(255, 255, 255, 0.95);
-}
-
 .pill-btn:active {
-    background: rgba(15, 158, 213, 0.2);
-    border-color: var(--accent-blue);
-    color: var(--accent-blue);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
     transform: scale(0.95);
 }
 
@@ -195,7 +248,9 @@ h1 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-grow: 1;
+    flex-grow: 1; /* Allow text to take remaining space */
+    padding: 0 5px;
+    overflow: hidden; /* Prevent spill */
 }
 
 .pill-label {
@@ -205,6 +260,7 @@ h1 {
     letter-spacing: 0.8px;
     margin-bottom: 3px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .pill-value {
@@ -213,10 +269,20 @@ h1 {
     color: #ffffff;
     font-variant-numeric: tabular-nums;
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    transition: color 0.2s;
+    white-space: nowrap;
 }
 
+/* Animations */
+@keyframes scaleUp {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); color: var(--accent-color); }
+    100% { transform: scale(1); }
+}
 
-/* --- THE BREATHING CIRCLE --- */
+.pill-value.pop { animation: scaleUp 0.3s ease-out; }
+
+/* --- VISUALS --- */
 .visual-area {
     flex-grow: 1;
     display: flex;
@@ -225,14 +291,11 @@ h1 {
     justify-content: center; 
     position: relative;
     width: 100%;
-    transition: transform 0.5s ease-out;
     cursor: pointer;
-    min-height: 200px; /* Reduced min-height */
-    -webkit-tap-highlight-color: transparent;
+    min-height: 200px;
 }
 
 .circle-wrapper {
-    /* Reduced size */
     width: 40vw; 
     height: 40vw;
     max-width: 180px; 
@@ -255,10 +318,7 @@ h1 {
     transition: box-shadow 0.3s;
 }
 
-/* Idle Animation */
-.breathing-circle.idle {
-    animation: idlePulse 3s infinite ease-in-out;
-}
+.breathing-circle.idle { animation: idlePulse 3s infinite ease-in-out; }
 
 @keyframes idlePulse {
     0% { transform: scale(1); opacity: 0.9; }
@@ -276,12 +336,9 @@ h1 {
     text-transform: uppercase;
     pointer-events: none;
     text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    width: 200px; 
 }
 
-/* --- STATES & ANIMATION HELPER CLASSES --- */
-
-/* Active State: Hide Header and Controls */
+/* --- STATES --- */
 body.active header { opacity: 0; pointer-events: none; height: 0; padding: 0; overflow: hidden; }
 body.active .controls-container {
     opacity: 0;
@@ -292,17 +349,9 @@ body.active .controls-container {
     padding: 0;
     overflow: hidden;
 }
-body.active .spacer {
-    display: none; 
-}
+body.active .spacer { display: none; }
+body.active .visual-area { transform: translateY(0); height: 100%; }
 
-/* When active, circle takes dominant position */
-body.active .visual-area {
-    transform: translateY(0); 
-    height: 100%;
-}
-
-/* Stop Button (Floating) */
 #floatingStopBtn {
     position: absolute;
     bottom: 40px;
