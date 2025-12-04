@@ -305,8 +305,8 @@
         }
         
         .circle-wrapper {
-            width: 240px; 
-            height: 240px;
+            width: 180px; 
+            height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -499,16 +499,6 @@
                     <div class="pill-btn" onclick="adjustSetting('in', 1)">+</div>
                 </div>
 
-                <!-- Hold 1 -->
-                <div class="control-pill" id="pill-hold">
-                    <div class="pill-btn" onclick="adjustSetting('hold', -1)">−</div>
-                    <div class="pill-content">
-                        <span class="pill-label">Hold</span>
-                        <span class="pill-value" id="display-hold">4s</span>
-                    </div>
-                    <div class="pill-btn" onclick="adjustSetting('hold', 1)">+</div>
-                </div>
-
                 <!-- Exhale -->
                 <div class="control-pill" id="pill-out">
                     <div class="pill-btn" onclick="adjustSetting('out', -1)">−</div>
@@ -517,6 +507,16 @@
                         <span class="pill-value" id="display-out">4s</span>
                     </div>
                     <div class="pill-btn" onclick="adjustSetting('out', 1)">+</div>
+                </div>
+
+                <!-- Hold 1 -->
+                <div class="control-pill" id="pill-hold">
+                    <div class="pill-btn" onclick="adjustSetting('hold', -1)">−</div>
+                    <div class="pill-content">
+                        <span class="pill-label">Hold</span>
+                        <span class="pill-value" id="display-hold">4s</span>
+                    </div>
+                    <div class="pill-btn" onclick="adjustSetting('hold', 1)">+</div>
                 </div>
 
                 <!-- Hold 2 -->
@@ -581,7 +581,7 @@ const presets = {
 };
 
 const descriptions = {
-    'box': "Square breathing: balanced and sharp. Four equal phases for calm focus.",
+    'box': "Square breathing: four equal phases for calm focus.",
     '478': "The sleep button: slows your heart, deepens calm.",
     'personal': "Make it yours — we'll remember it. Your rhythm."
 };
