@@ -121,7 +121,7 @@
             max-width: 600px;
             margin: 0 auto;
             position: relative;
-            padding: 0 15px;
+            padding: 15px 15px;
         }
 
         /* --- SESSION INFO (Top overlay) --- */
@@ -129,7 +129,7 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
-            padding: 0 10px;
+            padding: 20px 20px;
             margin-bottom: 20px;
             opacity: 0;
             pointer-events: none;
@@ -179,8 +179,6 @@
         .presets-row {
             display: flex;
             gap: 8px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .btn-preset {
@@ -209,6 +207,8 @@
             text-align: center;
             line-height: 1.4;
             min-height: 2.5em;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* --- GRID --- */
@@ -581,9 +581,9 @@ const presets = {
 };
 
 const descriptions = {
-    'box': "Square breathing. Equal phases for focus and performance. Inhale controls all phases.",
-    '478': "The relaxing breath. 4:7:8 ratio. Acts as a natural tranquilizer.",
-    'personal': "Your rhythm. Adjust phases to your liking; saved automatically."
+    'box': "Square breathing: balanced and sharp. Four equal phases for calm focus.",
+    '478': "The sleep button: slows your heart, deepens calm.",
+    'personal': "Make it yours — we'll remember it. Your rhythm."
 };
 
 let currentSettings = { ...presets[savedPresetName], duration: 5 };
