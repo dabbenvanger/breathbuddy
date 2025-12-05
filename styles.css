@@ -6,7 +6,7 @@
     --card-bg: rgba(30, 30, 30, 0.6);
     --border-color: rgba(255, 255, 255, 0.1);
     
-    /* DEFAULT THEME (Blue) */
+    /* THEME 1: DEFAULT (Blue) */
     --accent-color: #0F9ED5; 
     --glow-color: rgba(15, 158, 213, 0.6); 
     --circle-gradient: linear-gradient(135deg, var(--accent-color) 0%, #084C66 100%); 
@@ -16,11 +16,19 @@
     --safe-area-bottom: env(safe-area-inset-bottom, 20px);
 }
 
-/* SUNSET THEME */
+/* THEME 2: SUNSET (Warm Orange) */
 body.sunset-theme {
     --accent-color: #FF8C42; 
     --glow-color: rgba(255, 140, 66, 0.6);
     --circle-gradient: linear-gradient(135deg, var(--accent-color) 0%, #FF5E5E 100%); 
+}
+
+/* THEME 3: ZEN (Premium Gold/Beige) */
+body.zen-theme {
+    --accent-color: #D4AF37; /* Champagne Gold */
+    --glow-color: rgba(212, 175, 55, 0.5);
+    --circle-gradient: linear-gradient(135deg, #D4AF37 0%, #8A6E2F 100%);
+    --card-bg: rgba(40, 38, 30, 0.6); /* Slightly warmer background for card */
 }
 
 * {
@@ -48,16 +56,20 @@ body {
 /* --- HEADER --- */
 header {
     width: 100%;
-    /* Min padding 10px, Pref 20px */
-    padding: 20px 0 10px 0; 
-    flex-shrink: 0;
-    transition: opacity 0.5s ease, height 0.5s ease, padding 0.5s ease;
+    /* Terug in de flow */
     position: relative; 
+    /* Min padding 10px, Pref 20px */
+    padding: 20px 15px 10px 15px; 
+    /* Zorgt dat de header zijn ruimte behoudt en niet weggedrukt wordt */
+    flex-shrink: 0; 
+    transition: opacity 0.5s ease, height 0.5s ease, padding 0.5s ease;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 20;
     min-height: 60px;
+    cursor: pointer; 
+    -webkit-tap-highlight-color: transparent;
 }
 
 h1 {
@@ -68,36 +80,6 @@ h1 {
     gap: 5px;
 }
 
-.theme-switch {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 44px;
-    height: 24px;
-    cursor: pointer;
-}
-
-.theme-switch input { opacity: 0; width: 0; height: 0; }
-.slider {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(255,255,255,0.2);
-    transition: .4s;
-    border-radius: 34px;
-}
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 18px; width: 18px;
-    left: 3px; bottom: 3px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-}
-input:checked + .slider { background-color: var(--accent-color); }
-input:checked + .slider:before { transform: translateX(20px); }
-
 #header-breath { color: var(--accent-color); text-shadow: 0 0 5px var(--glow-color); }
 #header-buddy { color: var(--text-color); }
 
@@ -106,15 +88,15 @@ input:checked + .slider:before { transform: translateX(20px); }
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* Use flex-end to push circle to bottom on home screen */
-    justify-content: flex-end; 
-    height: 100%;
+    /* CRUCIAAL: Laat de container de resterende verticale ruimte vullen */
+    flex-grow: 1;
+    
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
     position: relative;
-    padding: 0 15px;
-    overflow: hidden; /* Double safety */
+    padding: 0 15px; 
+    overflow: hidden; 
 }
 
 /* --- SESSION INFO (Top overlay) --- */
@@ -163,9 +145,11 @@ input:checked + .slider:before { transform: translateX(20px); }
     flex-direction: column;
     gap: 16px;
     z-index: 2;
-    /* Spacing between controls and circle */
-    margin-bottom: 20px; 
-    flex-shrink: 0; /* Do not shrink controls, shrink circle instead */
+    /* DIT ZORGT ERVOOR DAT ALLE LEGE RUIMTE BOVEN DIT ELEMENT KOMT */
+    margin-top: auto; 
+    /* AANGEPAST: 30px ruimte tussen paneel en cirkel */
+    margin-bottom: 30px; 
+    flex-shrink: 0; 
 }
 
 .presets-row {
@@ -285,29 +269,28 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 /* --- VISUAL AREA --- */
 .visual-area {
-    /* Allow resizing to prevent scroll */
-    flex: 1 1 auto;
-    min-height: 0; 
+    /* Zorgt dat dit element alleen de benodigde ruimte inneemt */
+    flex-shrink: 0; 
     
     display: flex;
     flex-direction: column;
-    /* Bottom aligned on home screen */
+    /* Drukt de cirkel in de Visual Area naar de bodem, maar Visual Area zelf is al naar de bodem geduwd door controls */
     justify-content: flex-end; 
     align-items: center;
     width: 100%;
     position: relative; 
     transition: transform 0.5s ease;
-    /* Bottom padding for circle */
-    padding-bottom: 20px; 
+    padding-bottom: 30px; 
 }
 
 .circle-wrapper {
     /* Responsive sizing logic */
     width: 250px;
     height: 250px;
-    /* Limit size so expansion (1.7x) fits within screen width */
-    max-width: 55vw; 
-    max-height: 55vw;
+    /* max-width is 45vw voor extra marge (zoals gevraagd) */
+    max-width: 45vw; 
+    max-height: 45vw;
+    
     /* Allow shrinking on very small screens to avoid scroll */
     flex-shrink: 1; 
     min-height: 100px;
@@ -357,9 +340,9 @@ input:checked + .slider:before { transform: translateX(20px); }
     /* Updated Typography */
     font-family: var(--font-main);
     font-size: 1.4rem;
-    font-weight: 300; /* Thin/Modern */
+    font-weight: 300; 
     letter-spacing: 0.5px;
-    text-transform: none; /* Removed Uppercase */
+    text-transform: none; 
     text-shadow: 0 2px 15px rgba(0,0,0,0.6);
     margin-bottom: 5px;
     text-align: center;
@@ -395,7 +378,7 @@ body.active .controls-container {
     pointer-events: none;
     transform: translateY(-50px);
     height: 0;
-    margin: 0;
+    margin: 0; 
     padding: 0;
     overflow: hidden;
 }
@@ -403,7 +386,8 @@ body.active .controls-container {
 body.active .session-info { opacity: 1; }
 
 body.active .visual-area {
-    /* Center circle vertically during session */
+    /* Center de cirkel in de volledige viewport (visueel) wanneer de controls weg zijn */
+    flex-grow: 1;
     justify-content: center; 
     padding-bottom: 0;
 }

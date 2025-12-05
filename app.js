@@ -4,7 +4,11 @@ let savedPersonal = localStorage.getItem('bb_personal');
 let personalSettings = savedPersonal ? JSON.parse(savedPersonal) : { ...defaultCustom };
 
 let savedPresetName = localStorage.getItem('bb_lastPreset') || 'personal';
+
+// New Theme Logic: Cycle between 'blue', 'sunset', and 'zen'
+const themes = ['blue', 'sunset', 'zen'];
 let savedTheme = localStorage.getItem('bb_theme') || 'blue';
+if (!themes.includes(savedTheme)) savedTheme = 'blue';
 
 const presets = {
     'box':      { in: 4, hold: 4, out: 4, hold2: 4 },
@@ -31,8 +35,8 @@ let remainingSeconds = 0;
 let completedCycles = 0;
 let cycleDuration = 0;
 
-// Base64 Audio for silent unlock
-const iosUnlockAudioSrc = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD//////////////////////////////////////////////////////////////////wAAABFMYXZjNTguMTM0LjEwMAAAAAAAAAAAIAAELRAAAAAAAAAAAAAA//OECQAAAAAAIwAAAAASAAACABAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+// Base64 Audio for silent unlock (Required for web audio on iOS/Safari)
+const iosUnlockAudioSrc = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD//////////////////////////////////////////////////////////////////wAAABFMYXZjNTguMTM0LjEwMAAAAAAAAAAAIAAELRAAAAAAAAAAAAAA//OECQAAAAAAIwAAAAASAAACABAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
 /* --- DOM ELEMENTS --- */
 const circle = document.getElementById('circle');
@@ -41,8 +45,9 @@ const statusText = document.getElementById('statusText');
 const phaseTimerEl = document.getElementById('phaseTimer');
 const floatingStopBtn = document.getElementById('floatingStopBtn');
 const body = document.body;
+
+// themeToggle is nu verwijderd uit HTML
 const descriptionEl = document.getElementById('preset-description');
-const themeToggle = document.getElementById('themeToggle');
 
 // Unlock audio element creation
 const iosUnlockSound = new Audio(iosUnlockAudioSrc);
@@ -91,8 +96,8 @@ function playTone(type) {
 /* --- LOGIC --- */
 
 function init() {
-    themeToggle.checked = (savedTheme === 'sunset');
-    toggleTheme();
+    // Apply initial theme
+    applyTheme(savedTheme);
     applyPreset(savedPresetName);
     
     // Event Listeners for Preset Buttons
@@ -105,14 +110,39 @@ function init() {
         btn.onclick = () => adjustSetting(btn.dataset.type, parseInt(btn.dataset.val));
     });
 
-    // Theme Toggle
-    themeToggle.onchange = toggleTheme;
+    // Theme Toggle is nu de HTML onclick op de Header: cycleTheme()
 
     // Circle Click
     circleWrapper.onclick = handleCircleClick;
 
     // Stop Button
     floatingStopBtn.onclick = () => stopExercise(false);
+}
+
+/**
+ * Applies the selected theme by adding the corresponding class to the body.
+ */
+function applyTheme(themeName) {
+    // Remove all possible theme classes (including sunset, which was the previous toggle option)
+    document.body.classList.remove('sunset-theme', 'zen-theme');
+    
+    // Add the new theme class if it's not the default 'blue'
+    if (themeName === 'sunset') document.body.classList.add('sunset-theme');
+    if (themeName === 'zen') document.body.classList.add('zen-theme');
+    
+    localStorage.setItem('bb_theme', themeName);
+}
+
+/**
+ * Cycles through the available themes on header click.
+ */
+function cycleTheme() {
+    if (isRunning) return; // Prevent theme change during session
+    
+    const currentIndex = themes.indexOf(savedTheme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    savedTheme = themes[nextIndex];
+    applyTheme(savedTheme);
 }
 
 function updateUI() {
@@ -223,16 +253,6 @@ function adjustSetting(type, amount) {
     updateUI();
 }
 
-function toggleTheme() {
-    const isChecked = themeToggle.checked;
-    const themeName = isChecked ? 'sunset' : 'blue';
-    
-    if (isChecked) body.classList.add('sunset-theme');
-    else body.classList.remove('sunset-theme');
-    
-    localStorage.setItem('bb_theme', themeName);
-}
-
 /* --- WAKE LOCK --- */
 async function requestWakeLock() {
     try {
@@ -321,6 +341,7 @@ function runPhase(phase) {
         time = currentSettings.in;
         label = "Inhale";
         nextPhase = currentSettings.hold > 0 ? 'hold' : 'out';
+        // SCALING: 1.7x is de factor voor de groei animatie
         scale = 1.7; 
         sound = 'inhale';
     } else if (phase === 'hold') {
@@ -398,7 +419,7 @@ function stopExercise(completed = false) {
     phaseTimerEl.textContent = "";
 
     if (completed) {
-        statusText.textContent = "Well done"; // Text inside circle now
+        statusText.textContent = "Well done"; // Tekst is nu in de cirkel
         playTone('gong');
         
         floatingStopBtn.textContent = "Complete";
