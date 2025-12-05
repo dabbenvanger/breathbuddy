@@ -5,8 +5,8 @@ let personalSettings = savedPersonal ? JSON.parse(savedPersonal) : { ...defaultC
 
 let savedPresetName = localStorage.getItem('bb_lastPreset') || 'personal';
 
-// New Theme Logic: Cycle between 'blue', 'sunset', and 'zen'
-const themes = ['blue', 'sunset', 'zen'];
+// New Theme Logic: Cycle between 'blue', 'forest', and 'zen'
+const themes = ['blue', 'forest', 'zen'];
 let savedTheme = localStorage.getItem('bb_theme') || 'blue';
 if (!themes.includes(savedTheme)) savedTheme = 'blue';
 
@@ -123,11 +123,11 @@ function init() {
  * Applies the selected theme by adding the corresponding class to the body.
  */
 function applyTheme(themeName) {
-    // Remove all possible theme classes (including sunset, which was the previous toggle option)
-    document.body.classList.remove('sunset-theme', 'zen-theme');
+    // Remove all possible theme classes (including forest, which was the previous toggle option)
+    document.body.classList.remove('forest-theme', 'zen-theme');
     
     // Add the new theme class if it's not the default 'blue'
-    if (themeName === 'sunset') document.body.classList.add('sunset-theme');
+    if (themeName === 'forest') document.body.classList.add('forest-theme');
     if (themeName === 'zen') document.body.classList.add('zen-theme');
     
     localStorage.setItem('bb_theme', themeName);

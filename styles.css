@@ -16,11 +16,13 @@
     --safe-area-bottom: env(safe-area-inset-bottom, 20px);
 }
 
-/* THEME 2: SUNSET (Warm Orange) */
-body.sunset-theme {
-    --accent-color: #FF8C42; 
-    --glow-color: rgba(255, 140, 66, 0.6);
-    --circle-gradient: linear-gradient(135deg, var(--accent-color) 0%, #FF5E5E 100%); 
+
+/* THEME 2: FOREST (Deep Green/Teal) */
+body.forest-theme {
+    --accent-color: #2D8B7C; /* Diep teal/zeegroen */
+    --glow-color: rgba(45, 139, 124, 0.5);
+    --circle-gradient: linear-gradient(135deg, #2D8B7C 0%, #1A4D44 100%);
+    --card-bg: rgba(30, 30, 30, 0.6);
 }
 
 /* THEME 3: ZEN (Premium Gold/Beige) */
@@ -28,7 +30,7 @@ body.zen-theme {
     --accent-color: #D4AF37; /* Champagne Gold */
     --glow-color: rgba(212, 175, 55, 0.5);
     --circle-gradient: linear-gradient(135deg, #D4AF37 0%, #8A6E2F 100%);
-    --card-bg: rgba(40, 38, 30, 0.6); /* Slightly warmer background for card */
+    --card-bg: rgba(30, 30, 30, 0.6);
 }
 
 * {
@@ -145,10 +147,8 @@ h1 {
     flex-direction: column;
     gap: 16px;
     z-index: 2;
-    /* DIT ZORGT ERVOOR DAT ALLE LEGE RUIMTE BOVEN DIT ELEMENT KOMT */
     margin-top: auto; 
-    /* AANGEPAST: 30px ruimte tussen paneel en cirkel */
-    margin-bottom: 30px; 
+    margin-bottom: auto; 
     flex-shrink: 0; 
 }
 
@@ -269,12 +269,9 @@ h1 {
 
 /* --- VISUAL AREA --- */
 .visual-area {
-    /* Zorgt dat dit element alleen de benodigde ruimte inneemt */
     flex-shrink: 0; 
-    
     display: flex;
     flex-direction: column;
-    /* Drukt de cirkel in de Visual Area naar de bodem, maar Visual Area zelf is al naar de bodem geduwd door controls */
     justify-content: flex-end; 
     align-items: center;
     width: 100%;
@@ -284,14 +281,11 @@ h1 {
 }
 
 .circle-wrapper {
-    /* Responsive sizing logic */
-    width: 250px;
-    height: 250px;
-    /* max-width is 45vw voor extra marge (zoals gevraagd) */
-    max-width: 45vw; 
-    max-height: 45vw;
+    width: 200px;
+    height: 200px;
+    max-width: 30vw; 
+    max-height: 30vw;
     
-    /* Allow shrinking on very small screens to avoid scroll */
     flex-shrink: 1; 
     min-height: 100px;
     
