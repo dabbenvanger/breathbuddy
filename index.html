@@ -1,473 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Breath Buddy</title>
     <meta name="description" content="Simple, beautiful breathing exercise app.">
     
-    <!-- CSS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="styles.css">
     
-    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Breath Buddy">
     <meta property="og:description" content="Helping you to find your breath">
     <meta property="og:image" content="breathbuddy-og.png">
     
-    <!-- Favicons -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
-    
-    <!-- Apple / iOS icon -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    
-    <!-- Android / Chrome icons -->
     <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
     <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
-
-    <style>
-        /* --- CSS VARIABLES --- */
-        :root {
-            --bg-color: #050505;
-            --text-color: #f0f0f0; 
-            --text-muted: #888;
-            --card-bg: rgba(30, 30, 30, 0.6);
-            --border-color: rgba(255, 255, 255, 0.1);
-            
-            /* DEFAULT THEME (Blue) */
-            --accent-color: #0F9ED5; 
-            --glow-color: rgba(15, 158, 213, 0.6); 
-            --circle-gradient: linear-gradient(135deg, var(--accent-color) 0%, #084C66 100%); 
-
-            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --safe-area-bottom: env(safe-area-inset-bottom, 20px);
-        }
-
-        /* SUNSET THEME */
-        body.sunset-theme {
-            --accent-color: #FF8C42; 
-            --glow-color: rgba(255, 140, 66, 0.6);
-            --circle-gradient: linear-gradient(135deg, var(--accent-color) 0%, #FF5E5E 100%); 
-        }
-
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: var(--font-main);
-            height: 100vh;
-            height: 100dvh; 
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; 
-            transition: background-color 0.5s ease;
-        }
-
-        /* --- HEADER --- */
-        header {
-            width: 100%;
-            padding: 15px 0;
-            flex-shrink: 0;
-            transition: opacity 0.5s ease, height 0.5s ease, padding 0.5s ease;
-            position: relative; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-        }
-
-        h1 {
-            font-weight: 700; 
-            font-size: 1.8rem;
-            margin: 0;
-            display: flex;
-            gap: 5px;
-        }
-
-        .theme-switch {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 44px;
-            height: 24px;
-            cursor: pointer;
-        }
-
-        .theme-switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(255,255,255,0.2);
-            transition: .4s;
-            border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px; width: 18px;
-            left: 3px; bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider { background-color: var(--accent-color); }
-        input:checked + .slider:before { transform: translateX(20px); }
-
-        #header-breath { color: var(--accent-color); text-shadow: 0 0 5px var(--glow-color); }
-        #header-buddy { color: var(--text-color); }
-
-        /* --- APP CONTAINER --- */
-        .app-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            position: relative;
-            padding: 15px 15px;
-        }
-
-        /* --- SESSION INFO (Top overlay) --- */
-        .session-info {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            padding: 20px 20px;
-            margin-bottom: 20px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
-            position: absolute;
-            top: 15px; /* Replaces header space */
-            left: 0;
-            right: 0;
-            max-width: 600px;
-            margin: 0 auto;
-            z-index: 10;
-        }
-
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.6);
-        }
-        .info-value {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #fff;
-            font-variant-numeric: tabular-nums;
-        }
-
-        /* --- SETTINGS PANEL --- */
-        .controls-container {
-            width: 100%;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 24px;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s, height 0.5s ease, margin 0.5s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            z-index: 2;
-            margin-top: 0; /* Changed from auto */
-            margin-bottom: 20px;
-            flex-shrink: 0;
-        }
-
-        .presets-row {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-preset {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: rgba(255, 255, 255, 0.4);
-            padding: 12px 0;
-            border-radius: 30px; 
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s;
-        }
-
-        .btn-preset.active {
-            background: var(--accent-color);
-            border-color: var(--accent-color);
-            color: #fff; 
-            box-shadow: 0 0 15px var(--glow-color);
-        }
-
-        .preset-description {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-align: center;
-            line-height: 1.4;
-            min-height: 2.5em;
-            padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* --- GRID --- */
-        .phases-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        
-        @media (max-width: 380px) {
-            .phases-grid { grid-template-columns: 1fr; }
-            .control-pill.full-width { grid-column: span 1; }
-        }
-
-        /* --- PILLS --- */
-        .control-pill {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: transparent;
-            border: 1px solid var(--border-color); 
-            border-radius: 40px;
-            padding: 4px;
-            height: 56px;
-            transition: opacity 0.3s;
-        }
-
-        .control-pill.full-width { grid-column: span 2; }
-        
-        @media (max-width: 380px) {
-            .control-pill.full-width { grid-column: span 1; }
-        }
-
-        .control-pill.disabled {
-            opacity: 0.5;
-            background: rgba(255,255,255,0.02);
-            border-color: rgba(255,255,255,0.05);
-            pointer-events: none;
-        }
-
-        .pill-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.15); 
-            background: rgba(255, 255, 255, 0.03);
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            padding-bottom: 2px;
-        }
-        
-        .pill-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.1); }
-
-        .pill-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex-grow: 1;
-        }
-
-        .pill-label {
-            font-size: 0.65rem;
-            color: rgba(255, 255, 255, 0.5);
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .pill-value {
-            font-size: 1.1rem;
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-        }
-        
-        @keyframes pop { 50% { transform: scale(1.2); color: var(--accent-color); } }
-        .pop { animation: pop 0.2s ease-out; }
-
-        /* --- VISUAL AREA --- */
-        .spacer { flex-grow: 1; }
-
-        .visual-area {
-            flex-grow: 1; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center; /* Center Vertically in remaining space */
-            width: 100%;
-            position: relative; 
-            transition: transform 0.5s ease;
-        }
-        
-        .circle-wrapper {
-            width: 180px; 
-            height: 180px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            cursor: pointer;
-            pointer-events: auto; 
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .breathing-circle {
-            width: 100%;
-            height: 100%;
-            background: var(--circle-gradient);
-            border-radius: 50%;
-            position: absolute;
-            top: 0; left: 0;
-            box-shadow: 0 0 35px var(--glow-color);
-            transform: scale(1);
-            will-change: transform;
-            transition: box-shadow 0.3s;
-        }
-
-        .breathing-circle.idle { animation: idlePulse 3s infinite ease-in-out; }
-
-        @keyframes idlePulse {
-            0% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 45px var(--glow-color); }
-            100% { transform: scale(1); opacity: 0.9; }
-        }
-
-        /* TEXT OVERLAY (Separate from circle to prevent pulsing) */
-        .circle-text-container {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            z-index: 10;
-        }
-
-        .status-text {
-            font-size: 1.4rem;
-            font-weight: 400;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            text-shadow: 0 2px 15px rgba(0,0,0,0.6);
-            margin-bottom: 5px;
-        }
-
-        .phase-timer {
-            font-size: 2rem;
-            font-weight: 200;
-            opacity: 1;
-            font-variant-numeric: tabular-nums;
-        }
-
-        /* --- CALM NUMBER TRANSITION --- */
-        .fade-num {
-            animation: fadeInNum 1s ease-out;ßß
-        }
-        @keyframes fadeInNum {
-            from { opacity: 0.4; }
-            to { opacity: 1; }
-        }
-
-        /* --- ACTIVE STATE (SESSION RUNNING) --- */
-        body.active header { 
-            opacity: 0; 
-            pointer-events: none; 
-            height: 0; 
-            padding: 0; 
-            overflow: hidden; 
-        }
-        
-        body.active .controls-container {
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(-50px); /* Move UP instead of down */
-            height: 0;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        
-        body.active .session-info { opacity: 1; }
-        body.active .spacer { display: none; }
-
-        /* --- STOP BUTTON & COMPLETION --- */
-        #floatingStopBtn {
-            position: absolute;
-            bottom: var(--safe-area-bottom);
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: rgba(255, 59, 48, 0.2); 
-            backdrop-filter: blur(10px);
-            color: #ff453a;
-            border: 1px solid rgba(255, 59, 48, 0.4);
-            padding: 16px 48px;
-            border-radius: 40px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            z-index: 100;
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            cursor: pointer;
-        }
-
-        #floatingStopBtn.visible { 
-            opacity: 1; 
-            transform: translateX(-50%) translateY(-20px);
-            pointer-events: auto;
-        }
-
-        /* Completed State for Button */
-        #floatingStopBtn.completed-state {
-            background: rgba(15, 158, 213, 0.2);
-            color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        #completion-msg {
-            position: absolute;
-            bottom: 90px;
-            left: 0; right: 0;
-            text-align: center;
-            color: var(--accent-color);
-            font-size: 1.2rem;
-            font-weight: 600;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: all 0.5s;
-        }
-        #completion-msg.visible { opacity: 1; transform: translateY(0); }
-
-    </style>
 </head>
 <body>
 
     <div class="app-container">
-        <!-- Top Session Info (Visible only during session) -->
         <div class="session-info">
             <div class="info-item">
                 <span class="info-value fade-target" id="info-time">05:00</span>
@@ -486,86 +45,72 @@
         <header>
             <h1><span id="header-breath">Breath</span> <span id="header-buddy">Buddy</span></h1>
             <label class="theme-switch" aria-label="Toggle color theme">
-                <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+                <input type="checkbox" id="themeToggle">
                 <span class="slider round"></span>
             </label>
         </header>
 
-        <div class="spacer"></div>
-
-        <!-- Controls moved UP -->
         <div class="controls-container" id="settingsPanel">
-            
             <div class="presets-row">
-                <button class="btn-preset active" id="preset-box" onclick="applyPreset('box')">Box</button>
-                <button class="btn-preset" id="preset-478" onclick="applyPreset('478')">4-7-8</button>
-                <button class="btn-preset" id="preset-personal" onclick="applyPreset('personal')">Personal</button>
+                <button class="btn-preset active" id="preset-box">Box</button>
+                <button class="btn-preset" id="preset-478">4-7-8</button>
+                <button class="btn-preset" id="preset-personal">Personal</button>
             </div>
 
             <div id="preset-description" class="preset-description"></div>
 
             <div class="phases-grid">
-                
-                <!-- Inhale -->
                 <div class="control-pill" id="pill-in">
-                    <div class="pill-btn" onclick="adjustSetting('in', -1)">−</div>
+                    <div class="pill-btn" data-action="adjust" data-type="in" data-val="-1">−</div>
                     <div class="pill-content">
                         <span class="pill-label">Inhale</span>
                         <span class="pill-value" id="display-in">4s</span>
                     </div>
-                    <div class="pill-btn" onclick="adjustSetting('in', 1)">+</div>
+                    <div class="pill-btn" data-action="adjust" data-type="in" data-val="1">+</div>
                 </div>
 
-                <!-- Exhale -->
                 <div class="control-pill" id="pill-out">
-                    <div class="pill-btn" onclick="adjustSetting('out', -1)">−</div>
+                    <div class="pill-btn" data-action="adjust" data-type="out" data-val="-1">−</div>
                     <div class="pill-content">
                         <span class="pill-label">Exhale</span>
                         <span class="pill-value" id="display-out">4s</span>
                     </div>
-                    <div class="pill-btn" onclick="adjustSetting('out', 1)">+</div>
+                    <div class="pill-btn" data-action="adjust" data-type="out" data-val="1">+</div>
                 </div>
 
-                <!-- Hold 1 -->
                 <div class="control-pill" id="pill-hold">
-                    <div class="pill-btn" onclick="adjustSetting('hold', -1)">−</div>
+                    <div class="pill-btn" data-action="adjust" data-type="hold" data-val="-1">−</div>
                     <div class="pill-content">
                         <span class="pill-label">Hold</span>
                         <span class="pill-value" id="display-hold">4s</span>
                     </div>
-                    <div class="pill-btn" onclick="adjustSetting('hold', 1)">+</div>
+                    <div class="pill-btn" data-action="adjust" data-type="hold" data-val="1">+</div>
                 </div>
 
-                <!-- Hold 2 -->
                 <div class="control-pill" id="pill-hold2">
-                    <div class="pill-btn" onclick="adjustSetting('hold2', -1)">−</div>
+                    <div class="pill-btn" data-action="adjust" data-type="hold2" data-val="-1">−</div>
                     <div class="pill-content">
                         <span class="pill-label">Hold</span>
                         <span class="pill-value" id="display-hold2">4s</span>
                     </div>
-                    <div class="pill-btn" onclick="adjustSetting('hold2', 1)">+</div>
+                    <div class="pill-btn" data-action="adjust" data-type="hold2" data-val="1">+</div>
                 </div>
 
-                <!-- Duration (Reverted to +/-) -->
                 <div class="control-pill full-width">
-                    <div class="pill-btn" onclick="adjustSetting('duration', -1)">−</div>
+                    <div class="pill-btn" data-action="adjust" data-type="duration" data-val="-1">−</div>
                     <div class="pill-content">
                         <span class="pill-label">Duration</span>
                         <span class="pill-value" id="display-duration">5 min</span>
                     </div>
-                    <div class="pill-btn" onclick="adjustSetting('duration', 1)">+</div>
+                    <div class="pill-btn" data-action="adjust" data-type="duration" data-val="1">+</div>
                 </div>
-
             </div>
         </div>
 
-        <div class="spacer"></div>
-
-        <!-- Visual Area moved DOWN -->
         <div class="visual-area">
-            <div class="circle-wrapper" onclick="handleCircleClick()">
+            <div class="circle-wrapper" id="circleWrapper">
                 <div class="breathing-circle idle" id="circle"></div>
-                <!-- Text moved OUTSIDE of breathing-circle -->
+                
                 <div class="circle-text-container">
                     <div class="status-text" id="statusText">Start</div>
                     <div class="phase-timer" id="phaseTimer"></div>
@@ -573,441 +118,9 @@
             </div>
         </div>
 
-        <div id="completion-msg">Well done!</div>
-        <button id="floatingStopBtn" onclick="stopExercise(false)">Stop Session</button>
+        <button id="floatingStopBtn">Stop Session</button>
     </div>
 
-    <!-- IOS Unlock (Silent) -->
-    <audio id="ios-unlock-sound" loop style="display:none;">
-        <source src="data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD//////////////////////////////////////////////////////////////////wAAABFMYXZjNTguMTM0LjEwMAAAAAAAAAAAIAAELRAAAAAAAAAAAAAA//OECQAAAAAAIwAAAAASAAACABAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" type="audio/mpeg">
-    </audio>
-
-<script>
-// --- CONFIG & STATE ---
-const defaultCustom = { in: 5, hold: 0, out: 5, hold2: 0 };
-let savedPersonal = localStorage.getItem('bb_personal');
-let personalSettings = savedPersonal ? JSON.parse(savedPersonal) : { ...defaultCustom };
-
-let savedPresetName = localStorage.getItem('bb_lastPreset') || 'personal';
-let savedTheme = localStorage.getItem('bb_theme') || 'blue';
-
-const presets = {
-    'box':      { in: 4, hold: 4, out: 4, hold2: 4 },
-    '478':      { in: 4, hold: 7, out: 8, hold2: 0 },
-    'personal': personalSettings
-};
-
-const descriptions = {
-    'box': "Four equal phases for calm focus.",
-    '478': "Slows your heart, deepens calm and sleep",
-    'personal': "Make it yours — I'll remember it."
-};
-
-let currentSettings = { ...presets[savedPresetName], duration: 5 };
-let activePreset = savedPresetName;
-
-let isRunning = false;
-let wakeSentinel = null;
-let sessionTimer = null;
-let breathingTimeout = null;
-let prepareInterval = null;
-let phaseInterval = null;
-let remainingSeconds = 0;
-let completedCycles = 0;
-let cycleDuration = 0;
-
-// --- DOM ELEMENTS ---
-const circle = document.getElementById('circle');
-const statusText = document.getElementById('statusText');
-const phaseTimerEl = document.getElementById('phaseTimer');
-const floatingStopBtn = document.getElementById('floatingStopBtn');
-const completionMsg = document.getElementById('completion-msg');
-const body = document.body;
-const iosUnlockSound = document.getElementById('ios-unlock-sound');
-const descriptionEl = document.getElementById('preset-description');
-
-// --- AUDIO ENGINE (New Logic) ---
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-function playTone(type) {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    
-    const now = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    
-    osc.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    
-    // Short, gentle chimes
-    if (type === 'gong') {
-        // Completion Sound
-        osc.frequency.setValueAtTime(200, now);
-        gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.3, now + 0.1);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 4);
-        osc.start(now);
-        osc.stop(now + 4);
-    } else {
-        // Phase Change Sound (Soft Blip)
-        osc.type = 'sine';
-        // Subtle pitch variation per phase
-        let freq = 440; 
-        if(type === 'inhale') freq = 440; // A4
-        if(type === 'hold') freq = 554;   // C#5
-        if(type === 'exhale') freq = 329; // E4
-
-        osc.frequency.setValueAtTime(freq, now);
-        
-        gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.05, now + 0.05); // Soft attack
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.5); // Short decay
-
-        osc.start(now);
-        osc.stop(now + 0.6);
-    }
-}
-
-// --- LOGIC ---
-
-function init() {
-    document.getElementById('themeToggle').checked = (savedTheme === 'sunset');
-    toggleTheme();
-    applyPreset(savedPresetName);
-}
-
-function updateUI() {
-    const fmt = (id, val) => document.getElementById(id).textContent = val + 's';
-    
-    fmt('display-in', currentSettings.in);
-    fmt('display-hold', currentSettings.hold);
-    fmt('display-out', currentSettings.out);
-    fmt('display-hold2', currentSettings.hold2);
-    
-    document.getElementById('display-duration').textContent = currentSettings.duration + ' min';
-
-    ['box', '478', 'personal'].forEach(p => {
-        document.getElementById(`preset-${p}`).classList.toggle('active', activePreset === p);
-    });
-
-    descriptionEl.textContent = descriptions[activePreset];
-    
-    const pills = {
-        in: document.getElementById('pill-in'),
-        hold: document.getElementById('pill-hold'),
-        out: document.getElementById('pill-out'),
-        hold2: document.getElementById('pill-hold2')
-    };
-
-    Object.values(pills).forEach(p => p.classList.remove('disabled'));
-
-    if (activePreset === 'box') {
-        pills.hold.classList.add('disabled');
-        pills.out.classList.add('disabled');
-        pills.hold2.classList.add('disabled');
-    } else if (activePreset === '478') {
-        pills.hold2.classList.add('disabled');
-    }
-}
-
-function applyPreset(name) {
-    if (isRunning) return;
-    
-    activePreset = name;
-    localStorage.setItem('bb_lastPreset', name);
-
-    const src = presets[name];
-    currentSettings.in = src.in;
-    currentSettings.hold = src.hold;
-    currentSettings.out = src.out;
-    currentSettings.hold2 = src.hold2;
-
-    updateUI();
-}
-
-function adjustSetting(type, amount) {
-    if (isRunning) return;
-
-    if (activePreset === 'box') {
-        if (type === 'duration') {
-             // Let duration pass through to common logic
-        } else if (type === 'in') {
-            let newVal = currentSettings.in + amount;
-            if (newVal < 2) newVal = 2;
-            if (newVal > 10) newVal = 10;
-            
-            currentSettings.in = newVal;
-            currentSettings.out = newVal;
-            currentSettings.hold = newVal;
-            currentSettings.hold2 = newVal;
-        } else {
-            return; // Block other settings for Box
-        }
-    } 
-    else if (activePreset === '478') {
-        if (type === 'hold2') return; 
-        if (type !== 'duration') {
-            let newVal = currentSettings[type] + amount;
-            if (newVal < 0) newVal = 0;
-            if ((type === 'in' || type === 'out') && newVal < 1) newVal = 1;
-            currentSettings[type] = newVal;
-        }
-    }
-    else {
-        // Personal
-        if (type !== 'duration') {
-            let newVal = currentSettings[type] + amount;
-            if (newVal < 0) newVal = 0;
-            if ((type === 'in' || type === 'out') && newVal < 1) newVal = 1;
-            currentSettings[type] = newVal;
-
-            presets.personal[type] = currentSettings[type];
-            localStorage.setItem('bb_personal', JSON.stringify(presets.personal));
-        }
-    }
-
-    // Duration Logic (Common)
-    if (type === 'duration') {
-        let d = currentSettings.duration + amount;
-        if (d < 1) d = 1;
-        if (d > 60) d = 60;
-        currentSettings.duration = d;
-    }
-
-    const elId = `display-${type}`;
-    const el = document.getElementById(elId);
-    if(el) {
-        el.classList.remove('pop');
-        void el.offsetWidth;
-        el.classList.add('pop');
-    }
-
-    updateUI();
-}
-
-function toggleTheme() {
-    const isChecked = document.getElementById('themeToggle').checked;
-    const themeName = isChecked ? 'sunset' : 'blue';
-    
-    if (isChecked) body.classList.add('sunset-theme');
-    else body.classList.remove('sunset-theme');
-    
-    localStorage.setItem('bb_theme', themeName);
-}
-
-// --- WAKE LOCK ---
-async function requestWakeLock() {
-    try {
-        wakeSentinel = await navigator.wakeLock.request('screen');
-    } catch (err) { console.log('Wake Lock error:', err); }
-}
-
-function releaseWakeLock() {
-    if (wakeSentinel) {
-        wakeSentinel.release().then(() => wakeSentinel = null);
-    }
-}
-
-// --- EXERCISE LOOP ---
-
-function handleCircleClick() {
-    if (isRunning) return; 
-    startExercise();
-}
-
-function startExercise() {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    iosUnlockSound.play().catch(() => {});
-    requestWakeLock();
-    
-    cycleDuration = currentSettings.in + currentSettings.hold + currentSettings.out + currentSettings.hold2;
-    
-    // BPM Calc: Show decimal if needed
-    const exactBpm = 60 / cycleDuration;
-    const displayBpm = Number.isInteger(exactBpm) ? exactBpm : exactBpm.toFixed(1);
-    
-    remainingSeconds = currentSettings.duration * 60;
-    completedCycles = 0;
-    
-    document.getElementById('info-bpm').textContent = displayBpm;
-    document.getElementById('info-cycles').textContent = '0';
-    updateTimerDisplay();
-
-    isRunning = true;
-    body.classList.add('active');
-    circle.classList.remove('idle');
-    
-    // Reset Button State
-    floatingStopBtn.textContent = "Stop Session";
-    floatingStopBtn.classList.remove('completed-state');
-    floatingStopBtn.classList.add('visible');
-    
-    completionMsg.classList.remove('visible');
-
-    let prepCount = 3; 
-    statusText.textContent = "Ready...";
-    phaseTimerEl.textContent = "";
-    
-    prepareInterval = setInterval(() => {
-        if (prepCount > 0) {
-            statusText.textContent = prepCount;
-            playTone('hold'); 
-            prepCount--;
-        } else {
-            clearInterval(prepareInterval);
-            
-            // Start Global Timer
-            sessionTimer = setInterval(() => {
-                remainingSeconds--;
-                updateTimerDisplay(); 
-                if(remainingSeconds <= 0) stopExercise(true);
-            }, 1000);
-            
-            runPhase('in');
-        }
-    }, 1000);
-}
-
-// Global Timer - no fade animation
-function updateTimerDisplay() {
-    const m = Math.floor(remainingSeconds / 60);
-    const s = remainingSeconds % 60;
-    const newStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-    
-    const el = document.getElementById('info-time');
-    el.textContent = newStr;
-}
-
-function runPhase(phase) {
-    if (!isRunning) return;
-
-    let time = 0;
-    let nextPhase = '';
-    let scale = 1;
-    let label = '';
-    let sound = '';
-
-    if (phase === 'in') {
-        time = currentSettings.in;
-        label = "Inhale";
-        nextPhase = currentSettings.hold > 0 ? 'hold' : 'out';
-        scale = 1.7; 
-        sound = 'inhale';
-    } else if (phase === 'hold') {
-        time = currentSettings.hold;
-        label = "Hold";
-        nextPhase = 'out';
-        scale = 1.7; 
-        sound = 'hold';
-    } else if (phase === 'out') {
-        time = currentSettings.out;
-        label = "Exhale";
-        nextPhase = currentSettings.hold2 > 0 ? 'hold2' : 'finish_cycle';
-        scale = 1.0; 
-        sound = 'exhale';
-    } else if (phase === 'hold2') {
-        time = currentSettings.hold2;
-        label = "Hold";
-        nextPhase = 'finish_cycle';
-        scale = 1.0; 
-        sound = 'hold';
-    } else if (phase === 'finish_cycle') {
-        completedCycles++;
-        const elCycles = document.getElementById('info-cycles');
-        elCycles.textContent = completedCycles;
-        // Fade Animation for cycles
-        elCycles.classList.remove('fade-num');
-        void elCycles.offsetWidth;
-        elCycles.classList.add('fade-num');
-
-        runPhase('in'); 
-        return;
-    }
-
-    statusText.textContent = label;
-    playTone(sound);
-
-    // Start Phase Timer (calm fade)
-    let phaseRemaining = time;
-    phaseTimerEl.textContent = phaseRemaining;
-    phaseTimerEl.classList.remove('fade-num');
-    void phaseTimerEl.offsetWidth;
-    phaseTimerEl.classList.add('fade-num');
-
-    if (phaseInterval) clearInterval(phaseInterval);
-    phaseInterval = setInterval(() => {
-        phaseRemaining--;
-        if (phaseRemaining >= 0) {
-            phaseTimerEl.textContent = phaseRemaining;
-            // Trigger Fade
-            phaseTimerEl.classList.remove('fade-num');
-            void phaseTimerEl.offsetWidth;
-            phaseTimerEl.classList.add('fade-num');
-        }
-    }, 1000);
-
-    // Animate Circle
-    if (time > 0) {
-        circle.style.transition = (phase === 'hold' || phase === 'hold2') 
-            ? `transform 0s` 
-            : `transform ${time}s cubic-bezier(0.4, 0.0, 0.2, 1)`;
-            
-        circle.style.transform = `scale(${scale})`;
-    }
-
-    breathingTimeout = setTimeout(() => {
-        runPhase(nextPhase);
-    }, time * 1000);
-}
-
-function stopExercise(completed = false) {
-    // If not completed (User clicked "Stop" or "Complete"), cleanup and go home.
-    // If completed (Timer finished), just stop loop and show summary.
-    
-    // Always stop loops
-    clearTimeout(breathingTimeout);
-    clearInterval(sessionTimer);
-    clearInterval(prepareInterval);
-    clearInterval(phaseInterval);
-    iosUnlockSound.pause();
-    releaseWakeLock(); // Release lock when done
-
-    isRunning = false;
-    phaseTimerEl.textContent = "";
-
-    if (completed) {
-        // STAY in active mode
-        statusText.textContent = ""; 
-        playTone('gong');
-        completionMsg.classList.add('visible');
-        
-        floatingStopBtn.textContent = "Complete";
-        floatingStopBtn.classList.add('completed-state');
-        
-        // Reset circle gently
-        circle.style.transition = "transform 1.5s ease-out";
-        circle.style.transform = "scale(1)";
-        
-    } else {
-        // Go back to HOME
-        statusText.textContent = "Start";
-        body.classList.remove('active');
-        
-        circle.style.transition = "transform 0.5s ease-out";
-        circle.style.transform = "scale(1)";
-
-        setTimeout(() => {
-            if(!isRunning) {
-                circle.classList.add('idle');
-                floatingStopBtn.classList.remove('visible');
-                completionMsg.classList.remove('visible');
-            }
-        }, 500); 
-    }
-}
-
-init();
-
-</script>
+    <script src="app.js" defer></script>
 </body>
 </html>

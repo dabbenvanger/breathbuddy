@@ -1,49 +1,54 @@
-// --- CONFIG & STATE ---
+/* --- CONFIG & STATE --- */
 const defaultCustom = { in: 5, hold: 0, out: 5, hold2: 0 };
-let storedCustom = localStorage.getItem('breathBuddyCustom');
-let customSettings = storedCustom ? JSON.parse(storedCustom) : { ...defaultCustom };
+let savedPersonal = localStorage.getItem('bb_personal');
+let personalSettings = savedPersonal ? JSON.parse(savedPersonal) : { ...defaultCustom };
+
+let savedPresetName = localStorage.getItem('bb_lastPreset') || 'personal';
+let savedTheme = localStorage.getItem('bb_theme') || 'blue';
 
 const presets = {
     'box':      { in: 4, hold: 4, out: 4, hold2: 4 },
     '478':      { in: 4, hold: 7, out: 8, hold2: 0 },
-    'personal': customSettings // Mapped in UI as Personal, stored as personal
+    'personal': personalSettings
 };
 
 const descriptions = {
-    'box': "Square breathing. Equal duration for all phases. Heightens performance and concentration.",
-    '478': "The relaxing breath. 4:7:8 ratio. Acts as a natural tranquilizer for the nervous system.",
-    'personal': "Your personal rhythm. Adjust the phases to your liking; settings are saved automatically."
+    'box': "Four equal phases for calm focus.",
+    '478': "Slows your heart, deepens calm and sleep",
+    'personal': "Make it yours — I'll remember it."
 };
 
-let currentSettings = { ...presets['box'], duration: 5 };
-let activePreset = 'box';
+let currentSettings = { ...presets[savedPresetName], duration: 5 };
+let activePreset = savedPresetName;
 
 let isRunning = false;
+let wakeSentinel = null;
 let sessionTimer = null;
 let breathingTimeout = null;
 let prepareInterval = null;
+let phaseInterval = null;
 let remainingSeconds = 0;
+let completedCycles = 0;
+let cycleDuration = 0;
 
-// --- DOM ELEMENTS ---
+// Base64 Audio for silent unlock
+const iosUnlockAudioSrc = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD//////////////////////////////////////////////////////////////////wAAABFMYXZjNTguMTM0LjEwMAAAAAAAAAAAIAAELRAAAAAAAAAAAAAA//OECQAAAAAAIwAAAAASAAACABAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+
+/* --- DOM ELEMENTS --- */
 const circle = document.getElementById('circle');
+const circleWrapper = document.getElementById('circleWrapper');
 const statusText = document.getElementById('statusText');
+const phaseTimerEl = document.getElementById('phaseTimer');
 const floatingStopBtn = document.getElementById('floatingStopBtn');
 const body = document.body;
-const iosUnlockSound = document.getElementById('ios-unlock-sound');
 const descriptionEl = document.getElementById('preset-description');
+const themeToggle = document.getElementById('themeToggle');
 
-const btnBox = document.getElementById('preset-box');
-const btn478 = document.getElementById('preset-478');
-const btnPersonal = document.getElementById('preset-personal');
+// Unlock audio element creation
+const iosUnlockSound = new Audio(iosUnlockAudioSrc);
+iosUnlockSound.loop = true;
 
-const ctrlIn = document.getElementById('ctrl-in');
-const ctrlOut = document.getElementById('ctrl-out');
-const ctrlHold = document.getElementById('ctrl-hold');
-const ctrlHold2 = document.getElementById('ctrl-hold2');
-const labelIn = document.getElementById('label-in');
-const panel = document.getElementById('settingsPanel');
-
-// --- AUDIO ENGINE ---
+/* --- AUDIO ENGINE --- */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playTone(type) {
@@ -56,7 +61,6 @@ function playTone(type) {
     osc.connect(gainNode);
     gainNode.connect(audioCtx.destination);
     
-    // Short, gentle chimes
     if (type === 'gong') {
         // Completion Sound
         osc.frequency.setValueAtTime(200, now);
@@ -66,154 +70,183 @@ function playTone(type) {
         osc.start(now);
         osc.stop(now + 4);
     } else {
-        // Phase Change Sound (Soft Blip)
+        // Phase Change Sound
         osc.type = 'sine';
-        // Subtle pitch variation per phase
         let freq = 440; 
-        if(type === 'inhale') freq = 440; // A4
-        if(type === 'hold') freq = 554;   // C#5
-        if(type === 'exhale') freq = 329; // E4
+        if(type === 'inhale') freq = 440; 
+        if(type === 'hold') freq = 554;   
+        if(type === 'exhale') freq = 329; 
 
         osc.frequency.setValueAtTime(freq, now);
         
         gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.05, now + 0.05); // Soft attack
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.5); // Short decay
+        gainNode.gain.linearRampToValueAtTime(0.05, now + 0.05); 
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.5); 
 
         osc.start(now);
         osc.stop(now + 0.6);
     }
 }
 
-// --- UI LOGIC ---
+/* --- LOGIC --- */
 
-function updateUI() {
-    // Helper for formatting
-    const fmt = (val, isFull) => isFull ? `${val} seconds` : `${val}s`;
-
-    // Determine layout state for formatting
-    const isBox = activePreset === 'box';
-    const is478 = activePreset === '478';
-
-    // Update Values & Formats based on width
-    document.getElementById('display-in').textContent = isBox ? fmt(currentSettings.in, true) : fmt(currentSettings.in, false);
-    document.getElementById('display-out').textContent = fmt(currentSettings.out, false);
+function init() {
+    themeToggle.checked = (savedTheme === 'sunset');
+    toggleTheme();
+    applyPreset(savedPresetName);
     
-    // Hold is full width in Box (hidden) and 4-7-8 (visible)
-    document.getElementById('display-hold').textContent = is478 ? fmt(currentSettings.hold, true) : fmt(currentSettings.hold, false);
+    // Event Listeners for Preset Buttons
+    document.getElementById('preset-box').onclick = () => applyPreset('box');
+    document.getElementById('preset-478').onclick = () => applyPreset('478');
+    document.getElementById('preset-personal').onclick = () => applyPreset('personal');
     
-    document.getElementById('display-hold2').textContent = fmt(currentSettings.hold2, false);
-    document.getElementById('display-duration').textContent = `${currentSettings.duration} minutes`;
+    // Event Listeners for Adjustments (Pills)
+    document.querySelectorAll('.pill-btn').forEach(btn => {
+        btn.onclick = () => adjustSetting(btn.dataset.type, parseInt(btn.dataset.val));
+    });
 
-    // Buttons Styling
-    btnBox.classList.remove('active');
-    btn478.classList.remove('active');
-    btnPersonal.classList.remove('active');
+    // Theme Toggle
+    themeToggle.onchange = toggleTheme;
 
-    if(activePreset === 'box') btnBox.classList.add('active');
-    else if(activePreset === '478') btn478.classList.add('active');
-    else btnPersonal.classList.add('active');
+    // Circle Click
+    circleWrapper.onclick = handleCircleClick;
 
-    descriptionEl.textContent = descriptions[activePreset];
-    configureControlsForPreset(activePreset);
+    // Stop Button
+    floatingStopBtn.onclick = () => stopExercise(false);
 }
 
-function configureControlsForPreset(name) {
-    // Reset Classes
-    ctrlIn.classList.remove('hidden-control');
-    ctrlOut.classList.remove('hidden-control');
-    ctrlHold.classList.remove('hidden-control');
-    ctrlHold2.classList.remove('hidden-control');
+function updateUI() {
+    const fmt = (id, val) => document.getElementById(id).textContent = val + 's';
     
-    panel.classList.remove('box-mode-active');
-    panel.classList.remove('breath-478-active');
+    fmt('display-in', currentSettings.in);
+    fmt('display-hold', currentSettings.hold);
+    fmt('display-out', currentSettings.out);
+    fmt('display-hold2', currentSettings.hold2);
     
-    labelIn.textContent = "Inhale";
+    document.getElementById('display-duration').textContent = currentSettings.duration + ' min';
 
-    if (name === 'box') {
-        ctrlOut.classList.add('hidden-control');
-        ctrlHold.classList.add('hidden-control');
-        ctrlHold2.classList.add('hidden-control');
-        labelIn.textContent = "Phase Time";
-        panel.classList.add('box-mode-active');
+    ['box', '478', 'personal'].forEach(p => {
+        document.getElementById(`preset-${p}`).classList.toggle('active', activePreset === p);
+    });
+
+    descriptionEl.textContent = descriptions[activePreset];
     
-    } else if (name === '478') {
-        ctrlHold2.classList.add('hidden-control');
-        panel.classList.add('breath-478-active'); // Triggers full width on Hold
-    } 
+    const pills = {
+        in: document.getElementById('pill-in'),
+        hold: document.getElementById('pill-hold'),
+        out: document.getElementById('pill-out'),
+        hold2: document.getElementById('pill-hold2')
+    };
+
+    Object.values(pills).forEach(p => p.classList.remove('disabled'));
+
+    if (activePreset === 'box') {
+        pills.hold.classList.add('disabled');
+        pills.out.classList.add('disabled');
+        pills.hold2.classList.add('disabled');
+    } else if (activePreset === '478') {
+        pills.hold2.classList.add('disabled');
+    }
 }
 
 function applyPreset(name) {
     if (isRunning) return;
+    
     activePreset = name;
-    
-    currentSettings.in = presets[name].in;
-    currentSettings.hold = presets[name].hold;
-    currentSettings.out = presets[name].out;
-    currentSettings.hold2 = presets[name].hold2;
-    
+    localStorage.setItem('bb_lastPreset', name);
+
+    const src = presets[name];
+    currentSettings.in = src.in;
+    currentSettings.hold = src.hold;
+    currentSettings.out = src.out;
+    currentSettings.hold2 = src.hold2;
+
     updateUI();
 }
 
 function adjustSetting(type, amount) {
     if (isRunning) return;
 
-    // BOX LOGIC: Master Control
-    if (activePreset === 'box' && type === 'in') {
-        let newVal = currentSettings.in + amount;
-        if (newVal < 2) newVal = 2;
-        if (newVal > 10) newVal = 10;
+    if (activePreset === 'box') {
+        if (type === 'duration') {
+             // Pass through
+        } else if (type === 'in') {
+            let newVal = currentSettings.in + amount;
+            if (newVal < 2) newVal = 2;
+            if (newVal > 10) newVal = 10;
+            
+            currentSettings.in = newVal;
+            currentSettings.out = newVal;
+            currentSettings.hold = newVal;
+            currentSettings.hold2 = newVal;
+        } else {
+            return; 
+        }
+    } 
+    else if (activePreset === '478') {
+        if (type === 'hold2') return; 
+        if (type !== 'duration') {
+            let newVal = currentSettings[type] + amount;
+            if (newVal < 0) newVal = 0;
+            if ((type === 'in' || type === 'out') && newVal < 1) newVal = 1;
+            currentSettings[type] = newVal;
+        }
+    }
+    else {
+        // Personal
+        if (type !== 'duration') {
+            let newVal = currentSettings[type] + amount;
+            if (newVal < 0) newVal = 0;
+            if ((type === 'in' || type === 'out') && newVal < 1) newVal = 1;
+            currentSettings[type] = newVal;
 
-        currentSettings.in = newVal;
-        currentSettings.out = newVal;
-        currentSettings.hold = newVal;
-        currentSettings.hold2 = newVal;
-
-        triggerAnimation('in');
-        updateUI();
-        return;
+            presets.personal[type] = currentSettings[type];
+            localStorage.setItem('bb_personal', JSON.stringify(presets.personal));
+        }
     }
 
-    // Normal Logic
-    currentSettings[type] += amount;
-
-    // Limits
     if (type === 'duration') {
-        if (currentSettings[type] < 1) currentSettings[type] = 1;
-        if (currentSettings[type] > 60) currentSettings[type] = 60;
-    } else {
-        if (currentSettings[type] < 0) currentSettings[type] = 0; 
-        if ((type === 'in' || type === 'out') && currentSettings[type] < 1) currentSettings[type] = 1; 
-        if (currentSettings[type] > 30) currentSettings[type] = 30; 
+        let d = currentSettings.duration + amount;
+        if (d < 1) d = 1;
+        if (d > 60) d = 60;
+        currentSettings.duration = d;
     }
 
-    // Save Personal
-    if (activePreset === 'personal' && type !== 'duration') {
-        presets['personal'][type] = currentSettings[type];
-        localStorage.setItem('breathBuddyCustom', JSON.stringify(presets['personal']));
-    }
-
-    triggerAnimation(type);
-    updateUI();
-}
-
-function triggerAnimation(type) {
-    const idMap = { 'in': 'display-in', 'out': 'display-out', 'hold': 'display-hold', 'hold2': 'display-hold2', 'duration': 'display-duration' };
-    const el = document.getElementById(idMap[type]);
+    const elId = `display-${type}`;
+    const el = document.getElementById(elId);
     if(el) {
         el.classList.remove('pop');
         void el.offsetWidth;
         el.classList.add('pop');
     }
+
+    updateUI();
 }
 
 function toggleTheme() {
-    const isChecked = document.getElementById('themeToggle').checked;
+    const isChecked = themeToggle.checked;
+    const themeName = isChecked ? 'sunset' : 'blue';
+    
     if (isChecked) body.classList.add('sunset-theme');
     else body.classList.remove('sunset-theme');
+    
+    localStorage.setItem('bb_theme', themeName);
 }
 
-// --- START/STOP ---
+/* --- WAKE LOCK --- */
+async function requestWakeLock() {
+    try {
+        wakeSentinel = await navigator.wakeLock.request('screen');
+    } catch (err) { console.log('Wake Lock error:', err); }
+}
+
+function releaseWakeLock() {
+    if (wakeSentinel) {
+        wakeSentinel.release().then(() => wakeSentinel = null);
+    }
+}
+
+/* --- EXERCISE LOOP --- */
 
 function handleCircleClick() {
     if (isRunning) return; 
@@ -222,17 +255,32 @@ function handleCircleClick() {
 
 function startExercise() {
     if (audioCtx.state === 'suspended') audioCtx.resume();
-    iosUnlockSound.play().catch(e => {});
+    iosUnlockSound.play().catch(() => {});
+    requestWakeLock();
+    
+    cycleDuration = currentSettings.in + currentSettings.hold + currentSettings.out + currentSettings.hold2;
+    
+    const exactBpm = 60 / cycleDuration;
+    const displayBpm = Number.isInteger(exactBpm) ? exactBpm : exactBpm.toFixed(1);
     
     remainingSeconds = currentSettings.duration * 60;
-    isRunning = true;
+    completedCycles = 0;
     
+    document.getElementById('info-bpm').textContent = displayBpm;
+    document.getElementById('info-cycles').textContent = '0';
+    updateTimerDisplay();
+
+    isRunning = true;
     body.classList.add('active');
     circle.classList.remove('idle');
+    
+    floatingStopBtn.textContent = "Stop Session";
+    floatingStopBtn.classList.remove('completed-state');
     floatingStopBtn.classList.add('visible');
     
     let prepCount = 3; 
     statusText.textContent = "Ready...";
+    phaseTimerEl.textContent = "";
     
     prepareInterval = setInterval(() => {
         if (prepCount > 0) {
@@ -241,102 +289,139 @@ function startExercise() {
             prepCount--;
         } else {
             clearInterval(prepareInterval);
-            statusText.textContent = "Go";
             
             sessionTimer = setInterval(() => {
                 remainingSeconds--;
-                if(remainingSeconds <= 0) completeExercise();
+                updateTimerDisplay(); 
+                if(remainingSeconds <= 0) stopExercise(true);
             }, 1000);
             
-            runBreathingCycle(currentSettings.in, currentSettings.hold, currentSettings.out, currentSettings.hold2);
+            runPhase('in');
         }
     }, 1000);
 }
 
+function updateTimerDisplay() {
+    const m = Math.floor(remainingSeconds / 60);
+    const s = remainingSeconds % 60;
+    const newStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    document.getElementById('info-time').textContent = newStr;
+}
+
+function runPhase(phase) {
+    if (!isRunning) return;
+
+    let time = 0;
+    let nextPhase = '';
+    let scale = 1;
+    let label = '';
+    let sound = '';
+
+    if (phase === 'in') {
+        time = currentSettings.in;
+        label = "Inhale";
+        nextPhase = currentSettings.hold > 0 ? 'hold' : 'out';
+        scale = 1.7; 
+        sound = 'inhale';
+    } else if (phase === 'hold') {
+        time = currentSettings.hold;
+        label = "Hold";
+        nextPhase = 'out';
+        scale = 1.7; 
+        sound = 'hold';
+    } else if (phase === 'out') {
+        time = currentSettings.out;
+        label = "Exhale";
+        nextPhase = currentSettings.hold2 > 0 ? 'hold2' : 'finish_cycle';
+        scale = 1.0; 
+        sound = 'exhale';
+    } else if (phase === 'hold2') {
+        time = currentSettings.hold2;
+        label = "Hold";
+        nextPhase = 'finish_cycle';
+        scale = 1.0; 
+        sound = 'hold';
+    } else if (phase === 'finish_cycle') {
+        completedCycles++;
+        const elCycles = document.getElementById('info-cycles');
+        elCycles.textContent = completedCycles;
+        elCycles.classList.remove('fade-num');
+        void elCycles.offsetWidth;
+        elCycles.classList.add('fade-num');
+
+        runPhase('in'); 
+        return;
+    }
+
+    statusText.textContent = label;
+    playTone(sound);
+
+    let phaseRemaining = time;
+    phaseTimerEl.textContent = phaseRemaining;
+    phaseTimerEl.classList.remove('fade-num');
+    void phaseTimerEl.offsetWidth;
+    phaseTimerEl.classList.add('fade-num');
+
+    if (phaseInterval) clearInterval(phaseInterval);
+    phaseInterval = setInterval(() => {
+        phaseRemaining--;
+        if (phaseRemaining >= 0) {
+            phaseTimerEl.textContent = phaseRemaining;
+            phaseTimerEl.classList.remove('fade-num');
+            void phaseTimerEl.offsetWidth;
+            phaseTimerEl.classList.add('fade-num');
+        }
+    }, 1000);
+
+    if (time > 0) {
+        circle.style.transition = (phase === 'hold' || phase === 'hold2') 
+            ? `transform 0s` 
+            : `transform ${time}s cubic-bezier(0.4, 0.0, 0.2, 1)`;
+            
+        circle.style.transform = `scale(${scale})`;
+    }
+
+    breathingTimeout = setTimeout(() => {
+        runPhase(nextPhase);
+    }, time * 1000);
+}
+
 function stopExercise(completed = false) {
-    isRunning = false;
     clearTimeout(breathingTimeout);
     clearInterval(sessionTimer);
     clearInterval(prepareInterval);
+    clearInterval(phaseInterval);
     iosUnlockSound.pause();
+    releaseWakeLock();
+
+    isRunning = false;
+    phaseTimerEl.textContent = "";
 
     if (completed) {
+        statusText.textContent = "Well done"; // Text inside circle now
         playTone('gong');
-        statusText.textContent = "Complete";
+        
+        floatingStopBtn.textContent = "Complete";
+        floatingStopBtn.classList.add('completed-state');
+        
+        circle.style.transition = "transform 1.5s ease-out";
+        circle.style.transform = "scale(1)";
+        
     } else {
         statusText.textContent = "Start";
+        body.classList.remove('active');
+        
+        circle.style.transition = "transform 0.5s ease-out";
+        circle.style.transform = "scale(1)";
+
+        setTimeout(() => {
+            if(!isRunning) {
+                circle.classList.add('idle');
+                floatingStopBtn.classList.remove('visible');
+            }
+        }, 500); 
     }
-
-    body.classList.remove('active');
-    floatingStopBtn.classList.remove('visible');
-    circle.style.transition = "transform 1s ease";
-    circle.style.transform = "scale(1)";
-    
-    setTimeout(() => {
-        if(!isRunning) {
-            circle.classList.add('idle');
-            if(completed) statusText.textContent = "Start";
-        }
-    }, 4000);
 }
 
-// --- BREATHING CYCLE ---
-
-function runBreathingCycle(inTime, holdTime, outTime, hold2Time) {
-    if (!isRunning) return;
-
-    statusText.textContent = "Inhale";
-    playTone('inhale');
-    
-    circle.style.transition = `transform ${inTime}s cubic-bezier(0.4, 0.0, 0.2, 1)`;
-    circle.style.transform = "scale(1.6)"; 
-    
-    breathingTimeout = setTimeout(() => {
-        if (!isRunning) return;
-
-        if (holdTime > 0) {
-            statusText.textContent = "Hold";
-            playTone('hold');
-            circle.style.transition = `transform 0s`; 
-            circle.style.transform = "scale(1.6)";
-
-            breathingTimeout = setTimeout(() => {
-                if (!isRunning) return;
-                startExhale(inTime, holdTime, outTime, hold2Time);
-            }, holdTime * 1000);
-        } else {
-            startExhale(inTime, holdTime, outTime, hold2Time);
-        }
-    }, inTime * 1000);
-}
-
-function startExhale(inTime, holdTime, outTime, hold2Time) {
-    if (!isRunning) return;
-
-    statusText.textContent = "Exhale";
-    playTone('exhale');
-    
-    circle.style.transition = `transform ${outTime}s cubic-bezier(0.4, 0.0, 0.2, 1)`;
-    circle.style.transform = "scale(1)"; 
-
-    breathingTimeout = setTimeout(() => {
-        if (!isRunning) return;
-
-        if (hold2Time > 0) {
-            statusText.textContent = "Hold";
-            playTone('hold');
-            circle.style.transition = `transform 0s`; 
-            circle.style.transform = "scale(1)";
-
-            breathingTimeout = setTimeout(() => {
-                if (!isRunning) return;
-                runBreathingCycle(inTime, holdTime, outTime, hold2Time);
-            }, hold2Time * 1000);
-        } else {
-            runBreathingCycle(inTime, holdTime, outTime, hold2Time);
-        }
-
-    }, outTime * 1000);
-}
-
-updateUI();
+// Start
+init();
