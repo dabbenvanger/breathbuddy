@@ -45,8 +45,6 @@ const statusText = document.getElementById('statusText');
 const phaseTimerEl = document.getElementById('phaseTimer');
 const floatingStopBtn = document.getElementById('floatingStopBtn');
 const body = document.body;
-
-// themeToggle is nu verwijderd uit HTML
 const descriptionEl = document.getElementById('preset-description');
 
 // Unlock audio element creation
@@ -110,8 +108,6 @@ function init() {
         btn.onclick = () => adjustSetting(btn.dataset.type, parseInt(btn.dataset.val));
     });
 
-    // Theme Toggle is nu de HTML onclick op de Header: cycleTheme()
-
     // Circle Click
     circleWrapper.onclick = handleCircleClick;
 
@@ -119,25 +115,17 @@ function init() {
     floatingStopBtn.onclick = () => stopExercise(false);
 }
 
-/**
- * Applies the selected theme by adding the corresponding class to the body.
- */
 function applyTheme(themeName) {
-    // Remove all possible theme classes (including forest, which was the previous toggle option)
     document.body.classList.remove('forest-theme', 'zen-theme');
     
-    // Add the new theme class if it's not the default 'blue'
     if (themeName === 'forest') document.body.classList.add('forest-theme');
     if (themeName === 'zen') document.body.classList.add('zen-theme');
     
     localStorage.setItem('bb_theme', themeName);
 }
 
-/**
- * Cycles through the available themes on header click.
- */
 function cycleTheme() {
-    if (isRunning) return; // Prevent theme change during session
+    if (isRunning) return;
     
     const currentIndex = themes.indexOf(savedTheme);
     const nextIndex = (currentIndex + 1) % themes.length;
@@ -341,7 +329,6 @@ function runPhase(phase) {
         time = currentSettings.in;
         label = "Inhale";
         nextPhase = currentSettings.hold > 0 ? 'hold' : 'out';
-        // SCALING: 1.7x is de factor voor de groei animatie
         scale = 1.7; 
         sound = 'inhale';
     } else if (phase === 'hold') {
@@ -419,7 +406,7 @@ function stopExercise(completed = false) {
     phaseTimerEl.textContent = "";
 
     if (completed) {
-        statusText.textContent = "Well done"; // Tekst is nu in de cirkel
+        statusText.textContent = "Well done"; 
         playTone('gong');
         
         floatingStopBtn.textContent = "Complete";

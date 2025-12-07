@@ -16,10 +16,9 @@
     --safe-area-bottom: env(safe-area-inset-bottom, 20px);
 }
 
-
 /* THEME 2: FOREST (Deep Green/Teal) */
 body.forest-theme {
-    --accent-color: #2D8B7C; /* Diep teal/zeegroen */
+    --accent-color: #2D8B7C;
     --glow-color: rgba(45, 139, 124, 0.5);
     --circle-gradient: linear-gradient(135deg, #2D8B7C 0%, #1A4D44 100%);
     --card-bg: rgba(30, 30, 30, 0.6);
@@ -27,7 +26,7 @@ body.forest-theme {
 
 /* THEME 3: ZEN (Premium Gold/Beige) */
 body.zen-theme {
-    --accent-color: #D4AF37; /* Champagne Gold */
+    --accent-color: #D4AF37;
     --glow-color: rgba(212, 175, 55, 0.5);
     --circle-gradient: linear-gradient(135deg, #D4AF37 0%, #8A6E2F 100%);
     --card-bg: rgba(30, 30, 30, 0.6);
@@ -58,11 +57,8 @@ body {
 /* --- HEADER --- */
 header {
     width: 100%;
-    /* Terug in de flow */
     position: relative; 
-    /* Min padding 10px, Pref 20px */
     padding: 20px 15px 10px 15px; 
-    /* Zorgt dat de header zijn ruimte behoudt en niet weggedrukt wordt */
     flex-shrink: 0; 
     transition: opacity 0.5s ease, height 0.5s ease, padding 0.5s ease;
     display: flex;
@@ -82,17 +78,21 @@ h1 {
     gap: 5px;
 }
 
-#header-breath { color: var(--accent-color); text-shadow: 0 0 5px var(--glow-color); }
-#header-buddy { color: var(--text-color); }
+#header-breath {
+    color: var(--accent-color);
+    text-shadow: 0 0 5px var(--glow-color);
+}
+
+#header-buddy {
+    color: var(--text-color);
+}
 
 /* --- APP CONTAINER --- */
 .app-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* CRUCIAAL: Laat de container de resterende verticale ruimte vullen */
     flex-grow: 1;
-    
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
@@ -126,6 +126,7 @@ h1 {
     font-size: 0.8rem;
     color: rgba(255,255,255,0.6);
 }
+
 .info-value {
     font-size: 1.1rem;
     font-weight: 700;
@@ -195,11 +196,6 @@ h1 {
     gap: 10px;
 }
 
-@media (max-width: 380px) {
-    .phases-grid { grid-template-columns: 1fr; }
-    .control-pill.full-width { grid-column: span 1; }
-}
-
 /* --- PILLS --- */
 .control-pill {
     display: flex;
@@ -213,10 +209,8 @@ h1 {
     transition: opacity 0.3s;
 }
 
-.control-pill.full-width { grid-column: span 2; }
-
-@media (max-width: 380px) {
-    .control-pill.full-width { grid-column: span 1; }
+.control-pill.full-width {
+    grid-column: span 2;
 }
 
 .control-pill.disabled {
@@ -241,7 +235,10 @@ h1 {
     padding-bottom: 2px;
 }
 
-.pill-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.1); }
+.pill-btn:active {
+    transform: scale(0.9);
+    background: rgba(255,255,255,0.1);
+}
 
 .pill-content {
     display: flex;
@@ -264,8 +261,13 @@ h1 {
     font-variant-numeric: tabular-nums;
 }
 
-@keyframes pop { 50% { transform: scale(1.2); color: var(--accent-color); } }
-.pop { animation: pop 0.2s ease-out; }
+@keyframes pop {
+    50% { transform: scale(1.2); color: var(--accent-color); }
+}
+
+.pop {
+    animation: pop 0.2s ease-out;
+}
 
 /* --- VISUAL AREA --- */
 .visual-area {
@@ -277,18 +279,20 @@ h1 {
     width: 100%;
     position: relative; 
     transition: transform 0.5s ease;
-    padding-bottom: 30px; 
+    padding-bottom: 50px; 
 }
 
 .circle-wrapper {
-    width: 200px;
-    height: 200px;
-    max-width: 30vw; 
-    max-height: 30vw;
+    /* Responsive base size */
+    width: 220px;
+    max-width: 35vw; 
+    
+    /* Ensure perfect circle geometry always */
+    aspect-ratio: 1 / 1;
+    height: auto;
     
     flex-shrink: 1; 
     min-height: 100px;
-    
     display: flex;
     align-items: center;
     justify-content: center;
@@ -296,6 +300,7 @@ h1 {
     cursor: pointer;
     pointer-events: auto; 
     -webkit-tap-highlight-color: transparent;
+    transition: width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .breathing-circle {
@@ -310,7 +315,9 @@ h1 {
     transition: box-shadow 0.3s;
 }
 
-.breathing-circle.idle { animation: idlePulse 3s infinite ease-in-out; }
+.breathing-circle.idle {
+    animation: idlePulse 3s infinite ease-in-out;
+}
 
 @keyframes idlePulse {
     0% { transform: scale(1); opacity: 0.9; }
@@ -331,7 +338,6 @@ h1 {
 }
 
 .status-text {
-    /* Updated Typography */
     font-family: var(--font-main);
     font-size: 1.4rem;
     font-weight: 300; 
@@ -351,7 +357,10 @@ h1 {
 }
 
 /* --- CALM NUMBER TRANSITION --- */
-.fade-num { animation: fadeInNum 1s ease-out; }
+.fade-num {
+    animation: fadeInNum 1s ease-out;
+}
+
 @keyframes fadeInNum {
     from { opacity: 0.4; }
     to { opacity: 1; }
@@ -377,13 +386,21 @@ body.active .controls-container {
     overflow: hidden;
 }
 
-body.active .session-info { opacity: 1; }
+body.active .session-info {
+    opacity: 1;
+}
 
 body.active .visual-area {
-    /* Center de cirkel in de volledige viewport (visueel) wanneer de controls weg zijn */
+    /* Center the circle visually in the full viewport */
     flex-grow: 1;
     justify-content: center; 
     padding-bottom: 0;
+}
+
+/* Decouple logic: When active, the circle can be larger */
+body.active .circle-wrapper {
+    width: 280px;
+    max-width: 65vw;
 }
 
 /* --- STOP BUTTON --- */
@@ -419,4 +436,81 @@ body.active .visual-area {
     background: rgba(15, 158, 213, 0.2);
     color: var(--accent-color);
     border-color: var(--accent-color);
+}
+
+/* --- SMALL SCREEN OPTIMIZATION (iPhone SE / Small Androids) --- */
+@media (max-width: 380px), (max-height: 700px) {
+    /* Compact Header */
+    header {
+        min-height: 40px;
+        padding: 10px 15px 5px 15px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    /* Compact Controls */
+    .controls-container {
+        padding: 12px;
+        gap: 8px;
+    }
+
+    .preset-description {
+        min-height: auto;
+        padding-bottom: 8px;
+    }
+
+    .control-pill {
+        height: 48px;
+        padding: 3px;
+    }
+    
+    .pill-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+    }
+    
+    .pill-label {
+        font-size: 0.6rem;
+    }
+    
+    .pill-value {
+        font-size: 1rem;
+    }
+
+    .phases-grid {
+        /* FIX: Stack them vertically (1 column) on small screens */
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+    
+    .control-pill.full-width {
+        grid-column: span 1;
+    }
+
+    /* Decoupled Circle Sizes for Small Screens */
+    
+    /* 1. Start Screen: Compact Circle */
+    .visual-area {
+        padding-bottom: 10px; /* Reduced padding from bottom */
+    }
+    
+    .circle-wrapper {
+        width: 140px; /* Force smaller size on menu */
+    }
+    
+    /* 2. Active Screen: Large Circle */
+    body.active .visual-area {
+        padding-bottom: 0;
+    }
+    
+    body.active .circle-wrapper {
+        /* Berekening: 50vw * 1.7 (schaalfactor) = 85vw. 
+           Dit zorgt voor veilige marges aan de zijkant.
+        */
+        width: 50vw; 
+        max-width: 250px; 
+    }
 }
