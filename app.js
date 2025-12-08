@@ -35,7 +35,7 @@ let remainingSeconds = 0;
 let completedCycles = 0;
 let cycleDuration = 0;
 
-// Base64 Audio for silent unlock (Required for web audio on iOS/Safari)
+// Base64 Audio for silent unlock
 const iosUnlockAudioSrc = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD//////////////////////////////////////////////////////////////////wAAABFMYXZjNTguMTM0LjEwMAAAAAAAAAAAIAAELRAAAAAAAAAAAAAA//OECQAAAAAAIwAAAAASAAACABAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
 /* --- DOM ELEMENTS --- */
@@ -65,7 +65,6 @@ function playTone(type) {
     gainNode.connect(audioCtx.destination);
     
     if (type === 'gong') {
-        // Completion Sound
         osc.frequency.setValueAtTime(200, now);
         gainNode.gain.setValueAtTime(0, now);
         gainNode.gain.linearRampToValueAtTime(0.3, now + 0.1);
@@ -73,7 +72,6 @@ function playTone(type) {
         osc.start(now);
         osc.stop(now + 4);
     } else {
-        // Phase Change Sound
         osc.type = 'sine';
         let freq = 440; 
         if(type === 'inhale') freq = 440; 
@@ -94,39 +92,30 @@ function playTone(type) {
 /* --- LOGIC --- */
 
 function init() {
-    // Apply initial theme
     applyTheme(savedTheme);
     applyPreset(savedPresetName);
     
-    // Event Listeners for Preset Buttons
     document.getElementById('preset-box').onclick = () => applyPreset('box');
     document.getElementById('preset-478').onclick = () => applyPreset('478');
     document.getElementById('preset-personal').onclick = () => applyPreset('personal');
     
-    // Event Listeners for Adjustments (Pills)
     document.querySelectorAll('.pill-btn').forEach(btn => {
         btn.onclick = () => adjustSetting(btn.dataset.type, parseInt(btn.dataset.val));
     });
 
-    // Circle Click
     circleWrapper.onclick = handleCircleClick;
-
-    // Stop Button
     floatingStopBtn.onclick = () => stopExercise(false);
 }
 
 function applyTheme(themeName) {
     document.body.classList.remove('forest-theme', 'zen-theme');
-    
     if (themeName === 'forest') document.body.classList.add('forest-theme');
     if (themeName === 'zen') document.body.classList.add('zen-theme');
-    
     localStorage.setItem('bb_theme', themeName);
 }
 
 function cycleTheme() {
     if (isRunning) return;
-    
     const currentIndex = themes.indexOf(savedTheme);
     const nextIndex = (currentIndex + 1) % themes.length;
     savedTheme = themes[nextIndex];
@@ -169,7 +158,6 @@ function updateUI() {
 
 function applyPreset(name) {
     if (isRunning) return;
-    
     activePreset = name;
     localStorage.setItem('bb_lastPreset', name);
 
@@ -192,7 +180,6 @@ function adjustSetting(type, amount) {
             let newVal = currentSettings.in + amount;
             if (newVal < 2) newVal = 2;
             if (newVal > 10) newVal = 10;
-            
             currentSettings.in = newVal;
             currentSettings.out = newVal;
             currentSettings.hold = newVal;
@@ -211,13 +198,11 @@ function adjustSetting(type, amount) {
         }
     }
     else {
-        // Personal
         if (type !== 'duration') {
             let newVal = currentSettings[type] + amount;
             if (newVal < 0) newVal = 0;
             if ((type === 'in' || type === 'out') && newVal < 1) newVal = 1;
             currentSettings[type] = newVal;
-
             presets.personal[type] = currentSettings[type];
             localStorage.setItem('bb_personal', JSON.stringify(presets.personal));
         }
@@ -237,11 +222,9 @@ function adjustSetting(type, amount) {
         void el.offsetWidth;
         el.classList.add('pop');
     }
-
     updateUI();
 }
 
-/* --- WAKE LOCK --- */
 async function requestWakeLock() {
     try {
         wakeSentinel = await navigator.wakeLock.request('screen');
@@ -254,8 +237,6 @@ function releaseWakeLock() {
     }
 }
 
-/* --- EXERCISE LOOP --- */
-
 function handleCircleClick() {
     if (isRunning) return; 
     startExercise();
@@ -267,7 +248,6 @@ function startExercise() {
     requestWakeLock();
     
     cycleDuration = currentSettings.in + currentSettings.hold + currentSettings.out + currentSettings.hold2;
-    
     const exactBpm = 60 / cycleDuration;
     const displayBpm = Number.isInteger(exactBpm) ? exactBpm : exactBpm.toFixed(1);
     
@@ -297,13 +277,11 @@ function startExercise() {
             prepCount--;
         } else {
             clearInterval(prepareInterval);
-            
             sessionTimer = setInterval(() => {
                 remainingSeconds--;
                 updateTimerDisplay(); 
                 if(remainingSeconds <= 0) stopExercise(true);
             }, 1000);
-            
             runPhase('in');
         }
     }, 1000);
@@ -329,13 +307,15 @@ function runPhase(phase) {
         time = currentSettings.in;
         label = "Inhale";
         nextPhase = currentSettings.hold > 0 ? 'hold' : 'out';
-        scale = 1.7; 
+        // --- CHANGED SCALE TO 1.5 ---
+        scale = 1.5; 
         sound = 'inhale';
     } else if (phase === 'hold') {
         time = currentSettings.hold;
         label = "Hold";
         nextPhase = 'out';
-        scale = 1.7; 
+        // --- CHANGED SCALE TO 1.5 ---
+        scale = 1.5; 
         sound = 'hold';
     } else if (phase === 'out') {
         time = currentSettings.out;
@@ -356,7 +336,6 @@ function runPhase(phase) {
         elCycles.classList.remove('fade-num');
         void elCycles.offsetWidth;
         elCycles.classList.add('fade-num');
-
         runPhase('in'); 
         return;
     }
@@ -408,20 +387,15 @@ function stopExercise(completed = false) {
     if (completed) {
         statusText.textContent = "Well done"; 
         playTone('gong');
-        
         floatingStopBtn.textContent = "Complete";
         floatingStopBtn.classList.add('completed-state');
-        
         circle.style.transition = "transform 1.5s ease-out";
         circle.style.transform = "scale(1)";
-        
     } else {
         statusText.textContent = "Start";
         body.classList.remove('active');
-        
         circle.style.transition = "transform 0.5s ease-out";
         circle.style.transform = "scale(1)";
-
         setTimeout(() => {
             if(!isRunning) {
                 circle.classList.add('idle');
@@ -431,5 +405,4 @@ function stopExercise(completed = false) {
     }
 }
 
-// Start
 init();

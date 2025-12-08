@@ -78,14 +78,8 @@ h1 {
     gap: 5px;
 }
 
-#header-breath {
-    color: var(--accent-color);
-    text-shadow: 0 0 5px var(--glow-color);
-}
-
-#header-buddy {
-    color: var(--text-color);
-}
+#header-breath { color: var(--accent-color); text-shadow: 0 0 5px var(--glow-color); }
+#header-buddy { color: var(--text-color); }
 
 /* --- APP CONTAINER --- */
 .app-container {
@@ -209,9 +203,7 @@ h1 {
     transition: opacity 0.3s;
 }
 
-.control-pill.full-width {
-    grid-column: span 2;
-}
+.control-pill.full-width { grid-column: span 2; }
 
 .control-pill.disabled {
     opacity: 0.5;
@@ -235,10 +227,7 @@ h1 {
     padding-bottom: 2px;
 }
 
-.pill-btn:active {
-    transform: scale(0.9);
-    background: rgba(255,255,255,0.1);
-}
+.pill-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.1); }
 
 .pill-content {
     display: flex;
@@ -261,13 +250,8 @@ h1 {
     font-variant-numeric: tabular-nums;
 }
 
-@keyframes pop {
-    50% { transform: scale(1.2); color: var(--accent-color); }
-}
-
-.pop {
-    animation: pop 0.2s ease-out;
-}
+@keyframes pop { 50% { transform: scale(1.2); color: var(--accent-color); } }
+.pop { animation: pop 0.2s ease-out; }
 
 /* --- VISUAL AREA --- */
 .visual-area {
@@ -315,9 +299,7 @@ h1 {
     transition: box-shadow 0.3s;
 }
 
-.breathing-circle.idle {
-    animation: idlePulse 3s infinite ease-in-out;
-}
+.breathing-circle.idle { animation: idlePulse 3s infinite ease-in-out; }
 
 @keyframes idlePulse {
     0% { transform: scale(1); opacity: 0.9; }
@@ -357,10 +339,7 @@ h1 {
 }
 
 /* --- CALM NUMBER TRANSITION --- */
-.fade-num {
-    animation: fadeInNum 1s ease-out;
-}
-
+.fade-num { animation: fadeInNum 1s ease-out; }
 @keyframes fadeInNum {
     from { opacity: 0.4; }
     to { opacity: 1; }
@@ -386,9 +365,7 @@ body.active .controls-container {
     overflow: hidden;
 }
 
-body.active .session-info {
-    opacity: 1;
-}
+body.active .session-info { opacity: 1; }
 
 body.active .visual-area {
     /* Center the circle visually in the full viewport */
@@ -397,10 +374,15 @@ body.active .visual-area {
     padding-bottom: 0;
 }
 
-/* Decouple logic: When active, the circle can be larger */
+/* Decouple logic: When active, the circle is larger */
 body.active .circle-wrapper {
     width: 280px;
-    max-width: 65vw;
+    /* SAFEGUARD: 
+       Scale is 1.5x. 
+       Max base width of 60vw * 1.5 = 90vw. 
+       This leaves 10% margin total (5% each side) on ALL screens. 
+    */
+    max-width: 60vw;
 }
 
 /* --- STOP BUTTON --- */
@@ -438,19 +420,14 @@ body.active .circle-wrapper {
     border-color: var(--accent-color);
 }
 
-/* --- SMALL SCREEN OPTIMIZATION (iPhone SE / Small Androids) --- */
+/* --- SMALL SCREEN OPTIMIZATION --- */
 @media (max-width: 380px), (max-height: 700px) {
-    /* Compact Header */
     header {
         min-height: 40px;
         padding: 10px 15px 5px 15px;
     }
-    
-    h1 {
-        font-size: 1.5rem;
-    }
+    h1 { font-size: 1.5rem; }
 
-    /* Compact Controls */
     .controls-container {
         padding: 12px;
         gap: 8px;
@@ -472,45 +449,32 @@ body.active .circle-wrapper {
         font-size: 1rem;
     }
     
-    .pill-label {
-        font-size: 0.6rem;
-    }
-    
-    .pill-value {
-        font-size: 1rem;
-    }
+    .pill-label { font-size: 0.6rem; }
+    .pill-value { font-size: 1rem; }
 
     .phases-grid {
-        /* FIX: Stack them vertically (1 column) on small screens */
         grid-template-columns: 1fr;
         gap: 6px;
     }
     
-    .control-pill.full-width {
-        grid-column: span 1;
-    }
+    .control-pill.full-width { grid-column: span 1; }
 
     /* Decoupled Circle Sizes for Small Screens */
     
     /* 1. Start Screen: Compact Circle */
     .visual-area {
-        padding-bottom: 10px; /* Reduced padding from bottom */
+        padding-bottom: 10px; 
     }
     
     .circle-wrapper {
-        width: 140px; /* Force smaller size on menu */
+        width: 140px; 
     }
     
-    /* 2. Active Screen: Large Circle */
+    /* 2. Active Screen: 
+       Override explicit width, but respect the global max-width 60vw rule 
+       defined in body.active above. 
+    */
     body.active .visual-area {
         padding-bottom: 0;
-    }
-    
-    body.active .circle-wrapper {
-        /* Berekening: 50vw * 1.7 (schaalfactor) = 85vw. 
-           Dit zorgt voor veilige marges aan de zijkant.
-        */
-        width: 50vw; 
-        max-width: 250px; 
     }
 }
