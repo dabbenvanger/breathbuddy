@@ -421,7 +421,7 @@ body.active .circle-wrapper {
 }
 
 /* --- SMALL SCREEN OPTIMIZATION --- */
-@media (max-width: 380px), (max-height: 700px) {
+@media (max-width: 380px), (max-height: 650px) {
     header {
         min-height: 40px;
         padding: 10px 15px 5px 15px;
@@ -477,4 +477,5 @@ body.active .circle-wrapper {
     body.active .visual-area {
         padding-bottom: 0;
     }
+
 }
