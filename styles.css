@@ -457,7 +457,16 @@ body.active .circle-wrapper {
         gap: 6px;
     }
     
-    .control-pill.full-width { grid-column: span 1; }
+    /* Stacked order on small screens: Inhale -> Hold -> Exhale -> Hold */
+    #pill-in { order: 1; }
+    #pill-hold { order: 2; }
+    #pill-out { order: 3; }
+    #pill-hold2 { order: 4; }
+
+    .control-pill.full-width {
+       order: 5;
+        grid-column: span 1;
+}
 
     /* Decoupled Circle Sizes for Small Screens */
     
@@ -477,5 +486,4 @@ body.active .circle-wrapper {
     body.active .visual-area {
         padding-bottom: 0;
     }
-
 }
