@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Breath Buddy</title>
+    <meta name="description" content="Simple, beautiful breathing exercise app.">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0a1628" id="theme-color-meta">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Breath Buddy">
+    <meta property="og:description" content="Helping you to find your breath">
+    <meta property="og:image" content="assets/images/breathbuddy-og.png">
+
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/images/android-chrome-512x512.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/images/android-chrome-192x192.png">
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="session-info">
+            <div class="info-item">
+                <span class="info-value fade-target" id="info-time">05:00</span>
+                <span>Remaining</span>
+            </div>
+            <div class="info-item">
+                <span class="info-value" id="info-bpm">--</span>
+                <span>BPM</span>
+            </div>
+            <div class="info-item">
+                <span class="info-value" id="info-cycles">0</span>
+                <span>Cycles</span>
+            </div>
+        </div>
+
+        <header onclick="cycleTheme()" title="Tap to change theme">
+            <h1><span id="header-breath">Breath</span> <span id="header-buddy">Buddy</span></h1>
+            </header>
+
+        <div class="controls-container" id="settingsPanel">
+            <div class="presets-row">
+                <button class="btn-preset active" id="preset-box">Box</button>
+                <button class="btn-preset" id="preset-478">4-7-8</button>
+                <button class="btn-preset" id="preset-personal">Personal</button>
+            </div>
+
+            <div id="preset-description" class="preset-description"></div>
+
+            <div class="phases-grid">
+                <div class="control-pill" id="pill-in">
+                    <div class="pill-btn" data-action="adjust" data-type="in" data-val="-1">−</div>
+                    <div class="pill-content">
+                        <span class="pill-label">Inhale</span>
+                        <span class="pill-value" id="display-in">4s</span>
+                    </div>
+                    <div class="pill-btn" data-action="adjust" data-type="in" data-val="1">+</div>
+                </div>
+
+                <div class="control-pill" id="pill-out">
+                    <div class="pill-btn" data-action="adjust" data-type="out" data-val="-1">−</div>
+                    <div class="pill-content">
+                        <span class="pill-label">Exhale</span>
+                        <span class="pill-value" id="display-out">4s</span>
+                    </div>
+                    <div class="pill-btn" data-action="adjust" data-type="out" data-val="1">+</div>
+                </div>
+
+                <div class="control-pill" id="pill-hold">
+                    <div class="pill-btn" data-action="adjust" data-type="hold" data-val="-1">−</div>
+                    <div class="pill-content">
+                        <span class="pill-label">Hold</span>
+                        <span class="pill-value" id="display-hold">4s</span>
+                    </div>
+                    <div class="pill-btn" data-action="adjust" data-type="hold" data-val="1">+</div>
+                </div>
+
+                <div class="control-pill" id="pill-hold2">
+                    <div class="pill-btn" data-action="adjust" data-type="hold2" data-val="-1">−</div>
+                    <div class="pill-content">
+                        <span class="pill-label">Hold</span>
+                        <span class="pill-value" id="display-hold2">4s</span>
+                    </div>
+                    <div class="pill-btn" data-action="adjust" data-type="hold2" data-val="1">+</div>
+                </div>
+
+                <div class="control-pill full-width">
+                    <div class="pill-btn" data-action="adjust" data-type="duration" data-val="-1">−</div>
+                    <div class="pill-content">
+                        <span class="pill-label">Duration</span>
+                        <span class="pill-value" id="display-duration">5 min</span>
+                    </div>
+                    <div class="pill-btn" data-action="adjust" data-type="duration" data-val="1">+</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="visual-area">
+            <div class="circle-wrapper" id="circleWrapper">
+                <div class="breathing-circle idle" id="circle"></div>
+                
+                <div class="circle-text-container">
+                    <div class="status-text" id="statusText">Start</div>
+                    <div class="phase-timer" id="phaseTimer"></div>
+                </div>
+            </div>
+        </div>
+
+        <button id="floatingStopBtn">Stop Session</button>
+    </div>
+
+    <script src="app.js" defer></script>
+</body>
+</html>
