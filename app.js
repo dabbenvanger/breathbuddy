@@ -7,6 +7,11 @@ let savedPresetName = localStorage.getItem('bb_lastPreset') || 'personal';
 
 // New Theme Logic: Cycle between 'blue', 'forest', and 'zen'
 const themes = ['blue', 'forest', 'zen'];
+const themeColors = {
+    'blue': '#0a1628',
+    'forest': '#0d1f14',
+    'zen': '#1a1a2e'
+};
 let savedTheme = localStorage.getItem('bb_theme') || 'blue';
 if (!themes.includes(savedTheme)) savedTheme = 'blue';
 
@@ -112,6 +117,12 @@ function applyTheme(themeName) {
     if (themeName === 'forest') document.body.classList.add('forest-theme');
     if (themeName === 'zen') document.body.classList.add('zen-theme');
     localStorage.setItem('bb_theme', themeName);
+
+    // Update PWA theme-color meta tag
+    const themeColorMeta = document.getElementById('theme-color-meta');
+    if (themeColorMeta) {
+        themeColorMeta.setAttribute('content', themeColors[themeName]);
+    }
 }
 
 function cycleTheme() {
@@ -406,3 +417,16 @@ function stopExercise(completed = false) {
 }
 
 init();
+
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/breathbuddy/sw.js')
+            .then((registration) => {
+                console.log('SW registered:', registration.scope);
+            })
+            .catch((error) => {
+                console.log('SW registration failed:', error);
+            });
+    });
+}
