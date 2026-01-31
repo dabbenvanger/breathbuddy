@@ -1,17 +1,17 @@
 const CACHE_NAME = 'breath-buddy-v1';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/app.js',
-  '/manifest.json',
-  '/favicon.ico',
-  '/assets/images/android-chrome-192x192.png',
-  '/assets/images/android-chrome-512x512.png',
-  '/assets/images/apple-touch-icon.png',
-  '/assets/images/favicon-32x32.png',
-  '/assets/images/favicon-16x16.png',
-  '/assets/images/breathbuddy-og.png'
+  '/breathbuddy/',
+  '/breathbuddy/index.html',
+  '/breathbuddy/styles.css',
+  '/breathbuddy/app.js',
+  '/breathbuddy/manifest.json',
+  '/breathbuddy/favicon.ico',
+  '/breathbuddy/assets/images/android-chrome-192x192.png',
+  '/breathbuddy/assets/images/android-chrome-512x512.png',
+  '/breathbuddy/assets/images/apple-touch-icon.png',
+  '/breathbuddy/assets/images/favicon-32x32.png',
+  '/breathbuddy/assets/images/favicon-16x16.png',
+  '/breathbuddy/assets/images/breathbuddy-og.png'
 ];
 
 // Install event - cache all static assets

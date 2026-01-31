@@ -2,7 +2,7 @@
   "name": "Breath Buddy",
   "short_name": "Breath Buddy",
   "description": "Helping you to find your breath",
-  "start_url": "/",
+  "start_url": "/breathbuddy/",
   "display": "standalone",
   "background_color": "#0a1628",
   "theme_color": "#0a1628",
