@@ -14,7 +14,6 @@ const ASSETS_TO_CACHE = [
   '/breathbuddy/assets/images/breathbuddy-og.png'
 ];
 
-// Install event - cache all static assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -23,7 +22,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -36,12 +34,10 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - cache-first strategy
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  // Handle Google Fonts separately with network-first
+  // Google Fonts: network-first so updates propagate, fall back to cache
   if (event.request.url.includes('fonts.googleapis.com') ||
       event.request.url.includes('fonts.gstatic.com')) {
     event.respondWith(
@@ -57,7 +53,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for all other requests
   event.respondWith(
     caches.match(event.request)
       .then((cachedResponse) => {
@@ -65,11 +60,9 @@ self.addEventListener('fetch', (event) => {
           return cachedResponse;
         }
         return fetch(event.request).then((response) => {
-          // Don't cache non-successful responses
           if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
           }
-          // Cache the fetched response
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);

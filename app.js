@@ -1,11 +1,22 @@
-/* --- CONFIG & STATE --- */
 const defaultCustom = { in: 5, hold: 0, out: 5, hold2: 0 };
-let savedPersonal = localStorage.getItem('bb_personal');
-let personalSettings = savedPersonal ? JSON.parse(savedPersonal) : { ...defaultCustom };
+
+function loadPersonalSettings() {
+    try {
+        const raw = JSON.parse(localStorage.getItem('bb_personal') || '{}');
+        return {
+            in:    Math.min(10, Math.max(1, Number.isFinite(raw.in)    ? raw.in    : defaultCustom.in)),
+            hold:  Math.min(10, Math.max(0, Number.isFinite(raw.hold)  ? raw.hold  : defaultCustom.hold)),
+            out:   Math.min(10, Math.max(1, Number.isFinite(raw.out)   ? raw.out   : defaultCustom.out)),
+            hold2: Math.min(10, Math.max(0, Number.isFinite(raw.hold2) ? raw.hold2 : defaultCustom.hold2)),
+        };
+    } catch { return { ...defaultCustom }; }
+}
+
+let personalSettings = loadPersonalSettings();
 
 let savedPresetName = localStorage.getItem('bb_lastPreset') || 'personal';
+if (!['box', '478', 'personal'].includes(savedPresetName)) savedPresetName = 'personal';
 
-// New Theme Logic: Cycle between 'blue', 'forest', and 'zen'
 const themes = ['blue', 'forest', 'zen'];
 const themeColors = {
     'blue': '#0a1628',
@@ -40,10 +51,9 @@ let remainingSeconds = 0;
 let completedCycles = 0;
 let cycleDuration = 0;
 
-// Base64 Audio for silent unlock
+// Silent MP3 played on iOS to unlock the AudioContext on first user interaction
 const iosUnlockAudioSrc = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAAEAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD//////////////////////////////////////////////////////////////////wAAABFMYXZjNTguMTM0LjEwMAAAAAAAAAAAIAAELRAAAAAAAAAAAAAA//OECQAAAAAAIwAAAAASAAACABAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//OECQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
-/* --- DOM ELEMENTS --- */
 const circle = document.getElementById('circle');
 const circleWrapper = document.getElementById('circleWrapper');
 const statusText = document.getElementById('statusText');
@@ -52,11 +62,9 @@ const floatingStopBtn = document.getElementById('floatingStopBtn');
 const body = document.body;
 const descriptionEl = document.getElementById('preset-description');
 
-// Unlock audio element creation
 const iosUnlockSound = new Audio(iosUnlockAudioSrc);
-iosUnlockSound.loop = true;
+iosUnlockSound.loop = false;
 
-/* --- AUDIO ENGINE --- */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playTone(type) {
@@ -78,23 +86,20 @@ function playTone(type) {
         osc.stop(now + 4);
     } else {
         osc.type = 'sine';
-        let freq = 440; 
-        if(type === 'inhale') freq = 440; 
-        if(type === 'hold') freq = 554;   
-        if(type === 'exhale') freq = 329; 
+        let freq = 440;
+        if(type === 'hold') freq = 554;
+        if(type === 'exhale') freq = 329;
 
         osc.frequency.setValueAtTime(freq, now);
-        
+
         gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.05, now + 0.05); 
-        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.5); 
+        gainNode.gain.linearRampToValueAtTime(0.05, now + 0.05);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
 
         osc.start(now);
         osc.stop(now + 0.6);
     }
 }
-
-/* --- LOGIC --- */
 
 function init() {
     applyTheme(savedTheme);
@@ -118,7 +123,6 @@ function applyTheme(themeName) {
     if (themeName === 'zen') document.body.classList.add('zen-theme');
     localStorage.setItem('bb_theme', themeName);
 
-    // Update PWA theme-color meta tag
     const themeColorMeta = document.getElementById('theme-color-meta');
     if (themeColorMeta) {
         themeColorMeta.setAttribute('content', themeColors[themeName]);
@@ -186,7 +190,6 @@ function adjustSetting(type, amount) {
 
     if (activePreset === 'box') {
         if (type === 'duration') {
-             // Pass through
         } else if (type === 'in') {
             let newVal = currentSettings.in + amount;
             if (newVal < 2) newVal = 2;
@@ -196,11 +199,11 @@ function adjustSetting(type, amount) {
             currentSettings.hold = newVal;
             currentSettings.hold2 = newVal;
         } else {
-            return; 
+            return;
         }
-    } 
+    }
     else if (activePreset === '478') {
-        if (type === 'hold2') return; 
+        if (type === 'hold2') return;
         if (type !== 'duration') {
             let newVal = currentSettings[type] + amount;
             if (newVal < 0) newVal = 0;
@@ -239,7 +242,7 @@ function adjustSetting(type, amount) {
 async function requestWakeLock() {
     try {
         wakeSentinel = await navigator.wakeLock.request('screen');
-    } catch (err) { console.log('Wake Lock error:', err); }
+    } catch (err) { console.warn('Wake Lock error:', err); }
 }
 
 function releaseWakeLock() {
@@ -277,7 +280,7 @@ function startExercise() {
     floatingStopBtn.classList.remove('completed-state');
     floatingStopBtn.classList.add('visible');
     
-    let prepCount = 3; 
+    let prepCount = 3;
     statusText.textContent = "Ready...";
     phaseTimerEl.textContent = "";
     
@@ -318,27 +321,25 @@ function runPhase(phase) {
         time = currentSettings.in;
         label = "Inhale";
         nextPhase = currentSettings.hold > 0 ? 'hold' : 'out';
-        // --- CHANGED SCALE TO 1.5 ---
-        scale = 1.5; 
+        scale = 1.5;
         sound = 'inhale';
     } else if (phase === 'hold') {
         time = currentSettings.hold;
         label = "Hold";
         nextPhase = 'out';
-        // --- CHANGED SCALE TO 1.5 ---
-        scale = 1.5; 
+        scale = 1.5;
         sound = 'hold';
     } else if (phase === 'out') {
         time = currentSettings.out;
         label = "Exhale";
         nextPhase = currentSettings.hold2 > 0 ? 'hold2' : 'finish_cycle';
-        scale = 1.0; 
+        scale = 1.0;
         sound = 'exhale';
     } else if (phase === 'hold2') {
         time = currentSettings.hold2;
         label = "Hold";
         nextPhase = 'finish_cycle';
-        scale = 1.0; 
+        scale = 1.0;
         sound = 'hold';
     } else if (phase === 'finish_cycle') {
         completedCycles++;
@@ -347,7 +348,7 @@ function runPhase(phase) {
         elCycles.classList.remove('fade-num');
         void elCycles.offsetWidth;
         elCycles.classList.add('fade-num');
-        runPhase('in'); 
+        runPhase('in');
         return;
     }
 
@@ -412,21 +413,14 @@ function stopExercise(completed = false) {
                 circle.classList.add('idle');
                 floatingStopBtn.classList.remove('visible');
             }
-        }, 500); 
+        }, 500);
     }
 }
 
 init();
 
-// Register Service Worker for PWA
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/breathbuddy/sw.js')
-            .then((registration) => {
-                console.log('SW registered:', registration.scope);
-            })
-            .catch((error) => {
-                console.log('SW registration failed:', error);
-            });
+        navigator.serviceWorker.register('sw.js');
     });
 }

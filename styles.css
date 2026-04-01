@@ -1,22 +1,18 @@
-/* --- CSS VARIABLES --- */
 :root {
     --bg-color: #050505;
-    --text-color: #f0f0f0; 
+    --text-color: #f0f0f0;
     --text-muted: #888;
     --card-bg: rgba(30, 30, 30, 0.6);
     --border-color: rgba(255, 255, 255, 0.1);
-    
-    /* THEME 1: DEFAULT (Blue) */
-    --accent-color: #0F9ED5; 
-    --glow-color: rgba(15, 158, 213, 0.6); 
-    --circle-gradient: linear-gradient(135deg, var(--accent-color) 0%, #084C66 100%); 
 
-    /* Typography - Quicksand */
+    --accent-color: #0F9ED5;
+    --glow-color: rgba(15, 158, 213, 0.6);
+    --circle-gradient: linear-gradient(135deg, var(--accent-color) 0%, #084C66 100%);
+
     --font-main: "Quicksand", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --safe-area-bottom: env(safe-area-inset-bottom, 20px);
 }
 
-/* THEME 2: FOREST (Deep Green/Teal) */
 body.forest-theme {
     --accent-color: #2D8B7C;
     --glow-color: rgba(45, 139, 124, 0.5);
@@ -24,7 +20,6 @@ body.forest-theme {
     --card-bg: rgba(30, 30, 30, 0.6);
 }
 
-/* THEME 3: ZEN (Premium Gold/Beige) */
 body.zen-theme {
     --accent-color: #D4AF37;
     --glow-color: rgba(212, 175, 55, 0.5);
@@ -45,33 +40,31 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: var(--font-main);
-    /* Ensure no scroll on mobile */
     height: 100vh;
-    height: 100dvh; 
+    height: 100dvh;
     display: flex;
     flex-direction: column;
-    overflow: hidden; 
+    overflow: hidden;
     transition: background-color 0.5s ease;
 }
 
-/* --- HEADER --- */
 header {
     width: 100%;
-    position: relative; 
-    padding: 20px 15px 10px 15px; 
-    flex-shrink: 0; 
+    position: relative;
+    padding: 20px 15px 10px 15px;
+    flex-shrink: 0;
     transition: opacity 0.5s ease, height 0.5s ease, padding 0.5s ease;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 20;
     min-height: 60px;
-    cursor: pointer; 
+    cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 }
 
 h1 {
-    font-weight: 700; 
+    font-weight: 700;
     font-size: 1.8rem;
     margin: 0;
     display: flex;
@@ -81,7 +74,6 @@ h1 {
 #header-breath { color: var(--accent-color); text-shadow: 0 0 5px var(--glow-color); }
 #header-buddy { color: var(--text-color); }
 
-/* --- APP CONTAINER --- */
 .app-container {
     display: flex;
     flex-direction: column;
@@ -91,11 +83,10 @@ h1 {
     max-width: 600px;
     margin: 0 auto;
     position: relative;
-    padding: 0 15px; 
-    overflow: hidden; 
+    padding: 0 15px;
+    overflow: hidden;
 }
 
-/* --- SESSION INFO (Top overlay) --- */
 .session-info {
     display: flex;
     justify-content: space-between;
@@ -128,7 +119,6 @@ h1 {
     font-variant-numeric: tabular-nums;
 }
 
-/* --- SETTINGS PANEL --- */
 .controls-container {
     width: 100%;
     background: var(--card-bg);
@@ -142,9 +132,9 @@ h1 {
     flex-direction: column;
     gap: 16px;
     z-index: 2;
-    margin-top: auto; 
-    margin-bottom: auto; 
-    flex-shrink: 0; 
+    margin-top: auto;
+    margin-bottom: auto;
+    flex-shrink: 0;
 }
 
 .presets-row {
@@ -169,7 +159,7 @@ h1 {
 .btn-preset.active {
     background: var(--accent-color);
     border-color: var(--accent-color);
-    color: #fff; 
+    color: #fff;
     box-shadow: 0 0 15px var(--glow-color);
 }
 
@@ -183,14 +173,12 @@ h1 {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* --- GRID --- */
 .phases-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
 }
 
-/* --- PILLS --- */
 .control-pill {
     display: flex;
     align-items: center;
@@ -216,7 +204,7 @@ h1 {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.15); 
+    border: 1px solid rgba(255, 255, 255, 0.15);
     background: rgba(255, 255, 255, 0.03);
     color: rgba(255, 255, 255, 0.8);
     font-size: 1.2rem;
@@ -253,36 +241,31 @@ h1 {
 @keyframes pop { 50% { transform: scale(1.2); color: var(--accent-color); } }
 .pop { animation: pop 0.2s ease-out; }
 
-/* --- VISUAL AREA --- */
 .visual-area {
-    flex-shrink: 0; 
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; 
+    justify-content: flex-end;
     align-items: center;
     width: 100%;
-    position: relative; 
+    position: relative;
     transition: transform 0.5s ease;
-    padding-bottom: 50px; 
+    padding-bottom: 50px;
 }
 
 .circle-wrapper {
-    /* Responsive base size */
     width: 220px;
-    max-width: 35vw; 
-    
-    /* Ensure perfect circle geometry always */
+    max-width: 35vw;
     aspect-ratio: 1 / 1;
     height: auto;
-    
-    flex-shrink: 1; 
+    flex-shrink: 1;
     min-height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     cursor: pointer;
-    pointer-events: auto; 
+    pointer-events: auto;
     -webkit-tap-highlight-color: transparent;
     transition: width 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -307,7 +290,6 @@ h1 {
     100% { transform: scale(1); opacity: 0.9; }
 }
 
-/* TEXT OVERLAY */
 .circle-text-container {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -322,9 +304,9 @@ h1 {
 .status-text {
     font-family: var(--font-main);
     font-size: 1.4rem;
-    font-weight: 300; 
+    font-weight: 300;
     letter-spacing: 0.5px;
-    text-transform: none; 
+    text-transform: none;
     text-shadow: 0 2px 15px rgba(0,0,0,0.6);
     margin-bottom: 5px;
     text-align: center;
@@ -338,21 +320,19 @@ h1 {
     font-variant-numeric: tabular-nums;
 }
 
-/* --- CALM NUMBER TRANSITION --- */
 .fade-num { animation: fadeInNum 1s ease-out; }
 @keyframes fadeInNum {
     from { opacity: 0.4; }
     to { opacity: 1; }
 }
 
-/* --- ACTIVE STATE (SESSION RUNNING) --- */
-body.active header { 
-    opacity: 0; 
-    pointer-events: none; 
-    height: 0; 
-    padding: 0; 
+body.active header {
+    opacity: 0;
+    pointer-events: none;
+    height: 0;
+    padding: 0;
     min-height: 0;
-    overflow: hidden; 
+    overflow: hidden;
 }
 
 body.active .controls-container {
@@ -360,7 +340,7 @@ body.active .controls-container {
     pointer-events: none;
     transform: translateY(-50px);
     height: 0;
-    margin: 0; 
+    margin: 0;
     padding: 0;
     overflow: hidden;
 }
@@ -368,30 +348,26 @@ body.active .controls-container {
 body.active .session-info { opacity: 1; }
 
 body.active .visual-area {
-    /* Center the circle visually in the full viewport */
     flex-grow: 1;
-    justify-content: center; 
+    justify-content: center;
     padding-bottom: 0;
 }
 
-/* Decouple logic: When active, the circle is larger */
+/*
+ * Scale is 1.5x. Max base width of 60vw * 1.5 = 90vw,
+ * leaving 5% margin per side on all screens.
+ */
 body.active .circle-wrapper {
     width: 280px;
-    /* SAFEGUARD: 
-       Scale is 1.5x. 
-       Max base width of 60vw * 1.5 = 90vw. 
-       This leaves 10% margin total (5% each side) on ALL screens. 
-    */
     max-width: 60vw;
 }
 
-/* --- STOP BUTTON --- */
 #floatingStopBtn {
     position: absolute;
     bottom: var(--safe-area-bottom);
     left: 50%;
     transform: translateX(-50%) translateY(100px);
-    background: rgba(255, 59, 48, 0.2); 
+    background: rgba(255, 59, 48, 0.2);
     backdrop-filter: blur(10px);
     color: #ff453a;
     border: 1px solid rgba(255, 59, 48, 0.4);
@@ -420,7 +396,6 @@ body.active .circle-wrapper {
     border-color: var(--accent-color);
 }
 
-/* --- SMALL SCREEN OPTIMIZATION --- */
 @media (max-width: 380px), (max-height: 650px) {
     header {
         min-height: 40px;
@@ -457,7 +432,6 @@ body.active .circle-wrapper {
         gap: 6px;
     }
     
-    /* Stacked order on small screens: Inhale -> Hold -> Exhale -> Hold */
     #pill-in { order: 1; }
     #pill-hold { order: 2; }
     #pill-out { order: 3; }
@@ -468,21 +442,14 @@ body.active .circle-wrapper {
         grid-column: span 1;
 }
 
-    /* Decoupled Circle Sizes for Small Screens */
-    
-    /* 1. Start Screen: Compact Circle */
     .visual-area {
-        padding-bottom: 10px; 
+        padding-bottom: 10px;
     }
-    
+
     .circle-wrapper {
-        width: 140px; 
+        width: 140px;
     }
-    
-    /* 2. Active Screen: 
-       Override explicit width, but respect the global max-width 60vw rule 
-       defined in body.active above. 
-    */
+
     body.active .visual-area {
         padding-bottom: 0;
     }
